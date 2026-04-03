@@ -1,599 +1,439 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IB 학습자 상 & 감정 온도계</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Baloo+2:wght@700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --purple-light: #EEEDFE;
-    --purple-mid: #7F77DD;
-    --purple-dark: #3C3489;
-    --teal: #1D9E75;
-    --teal-light: #E1F5EE;
-    --amber: #BA7517;
-    --amber-light: #FAEEDA;
-    --coral: #D85A30;
-    --coral-light: #FAECE7;
-    --red: #A32D2D;
-    --red-light: #FCEBEB;
-    --blue: #3B8BEB;
-    --blue-light: #E6F1FB;
-    --bg: #F7F6FF;
-    --card-bg: #FFFFFF;
-    --text: #1a1a2e;
-    --text-muted: #6b6b8a;
-    --border: #e2e0f5;
-    --radius: 16px;
-    --shadow: 0 4px 24px rgba(100,90,200,0.10);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: var(--bg);
-    min-height: 100vh;
-    color: var(--text);
-  }
-
-  /* ── 헤더 ── */
-  .header {
-    background: linear-gradient(135deg, #534AB7 0%, #7F77DD 60%, #AFA9EC 100%);
-    padding: 2rem 1.5rem 1.5rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .header::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 160px; height: 160px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-  }
-  .header::after {
-    content: '';
-    position: absolute;
-    bottom: -50px; left: -30px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.05);
-  }
-  .header-icon { font-size: 2.5rem; margin-bottom: 0.4rem; }
-  .header h1 {
-    font-family: 'Baloo 2', 'Noto Sans KR', sans-serif;
-    font-size: 1.6rem;
-    color: #fff;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    margin-bottom: 0.25rem;
-  }
-  .header p { font-size: 0.9rem; color: rgba(255,255,255,0.85); }
-
-  /* ── 이름 입력 ── */
-  .name-section {
-    max-width: 680px;
-    margin: 1.5rem auto 0;
-    padding: 0 1rem;
-  }
-  .name-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    border: 1.5px solid var(--border);
-    padding: 1.2rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: var(--shadow);
-  }
-  .name-label {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--purple-dark);
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .name-input {
-    flex: 1;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 1rem;
-    font-family: 'Noto Sans KR', sans-serif;
-    color: var(--text);
-    background: var(--bg);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .name-input:focus { border-color: var(--purple-mid); }
-  .name-input::placeholder { color: #b0aed0; }
-
-  /* ── 진행 상태 ── */
-  .progress-section {
-    max-width: 680px;
-    margin: 1rem auto 0;
-    padding: 0 1rem;
-    display: flex;
-    gap: 10px;
-  }
-  .prog-pill {
-    flex: 1;
-    padding: 8px 12px;
-    border-radius: 30px;
-    border: 1.5px solid var(--border);
-    background: var(--card-bg);
-    font-size: 0.78rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    text-align: center;
-    transition: all 0.3s ease;
-  }
-  .prog-pill.done {
-    background: var(--purple-light);
-    border-color: var(--purple-mid);
-    color: var(--purple-dark);
-  }
-
-  /* ── 섹션 ── */
-  .section {
-    max-width: 680px;
-    margin: 1.5rem auto 0;
-    padding: 0 1rem;
-  }
-  .step-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 0.6rem;
-  }
-  .step-num {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    background: var(--purple-mid);
-    color: #fff;
-    font-size: 0.82rem;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .step-text { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); }
-  .section-title { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
-  .section-sub { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem; }
-
-  /* ── 학습자 카드 그리드 ── */
-  .learner-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 10px;
-  }
-  .lcard {
-    background: var(--card-bg);
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 10px 14px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .lcard:hover { border-color: var(--purple-mid); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(127,119,221,0.18); }
-  .lcard.selected {
-    border-color: var(--purple-mid);
-    background: var(--purple-light);
-    transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 8px 24px rgba(127,119,221,0.25);
-  }
-  .lcard-icon { font-size: 2rem; margin-bottom: 7px; display: block; transition: transform 0.25s cubic-bezier(.34,1.56,.64,1); }
-  .lcard.selected .lcard-icon { transform: scale(1.2) rotate(-5deg); }
-  .lcard-name { font-size: 0.78rem; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 2px; }
-  .lcard.selected .lcard-name { color: var(--purple-dark); }
-  .lcard-eng { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 4px; }
-  .lcard.selected .lcard-eng { color: var(--purple-mid); }
-  .lcard-desc { font-size: 0.68rem; color: var(--text-muted); line-height: 1.4; }
-  .lcard.selected .lcard-desc { color: #534AB7; }
-
-  /* ── 감정 버튼 ── */
-  .emotion-grid {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .emo-btn {
-    flex: 1;
-    min-width: 100px;
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 8px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
-    background: var(--card-bg);
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .emo-btn:hover { transform: translateY(-3px); }
-  .emo-btn.selected { transform: translateY(-3px) scale(1.04); }
-  .emo-icon { font-size: 2rem; display: block; margin-bottom: 6px; transition: transform 0.25s cubic-bezier(.34,1.56,.64,1); }
-  .emo-btn.selected .emo-icon { transform: scale(1.25); }
-  .emo-temp { font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 3px; }
-  .emo-words { font-size: 0.68rem; color: var(--text-muted); display: block; line-height: 1.5; white-space: pre-line; }
-
-  /* 감정 색상 */
-  .emo-1 { --ec: #3B8BEB; --eb: #E6F1FB; --et: #0C447C; }
-  .emo-2 { --ec: #1D9E75; --eb: #E1F5EE; --et: #085041; }
-  .emo-3 { --ec: #BA7517; --eb: #FAEEDA; --et: #633806; }
-  .emo-4 { --ec: #D85A30; --eb: #FAECE7; --et: #4A1B0C; }
-  .emo-5 { --ec: #A32D2D; --eb: #FCEBEB; --et: #501313; }
-  .emo-btn.selected { background: var(--eb) !important; border-color: var(--ec) !important; box-shadow: 0 6px 20px color-mix(in srgb, var(--ec) 25%, transparent); }
-  .emo-btn.selected .emo-temp { color: var(--et); }
-  .emo-btn.selected .emo-words { color: var(--et); opacity: 0.8; }
-
-  /* ── 모달 ── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(30,20,80,0.65);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 1rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    backdrop-filter: blur(4px);
-  }
-  .modal-overlay.show {
-    opacity: 1;
-    pointer-events: all;
-  }
-  .modal-box {
-    background: var(--card-bg);
-    border-radius: 24px;
-    padding: 2.5rem 2rem 2rem;
-    max-width: 460px;
-    width: 100%;
-    text-align: center;
-    border: 2.5px solid var(--purple-mid);
-    box-shadow: 0 20px 60px rgba(83,74,183,0.3);
-    transform: scale(0.85) translateY(20px);
-    transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
-    position: relative;
-  }
-  .modal-overlay.show .modal-box { transform: scale(1) translateY(0); }
-  .modal-confetti { font-size: 2.5rem; margin-bottom: 0.75rem; letter-spacing: 6px; animation: bounce 0.6s ease infinite alternate; }
-  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-6px); } }
-  .modal-learner-icon { font-size: 4rem; margin: 0.5rem 0; }
-  .modal-title { font-size: 1.35rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; line-height: 1.4; }
-  .modal-highlight { color: var(--purple-dark); }
-  .modal-body { font-size: 1rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 1.25rem; }
-  .modal-emo-bar {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 16px;
-    border-radius: 30px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-  }
-  .modal-close {
-    background: linear-gradient(135deg, var(--purple-mid), var(--purple-dark));
-    color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 14px 36px;
-    font-size: 1rem;
-    font-weight: 700;
-    font-family: 'Noto Sans KR', sans-serif;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    box-shadow: 0 4px 16px rgba(83,74,183,0.3);
-    width: 100%;
-  }
-  .modal-close:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(83,74,183,0.4); }
-  .modal-close:active { transform: scale(0.97); }
-  .modal-send {
-    background: #1D9E75;
-    color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 14px 36px;
-    font-size: 1rem;
-    font-weight: 700;
-    font-family: 'Noto Sans KR', sans-serif;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    box-shadow: 0 4px 16px rgba(29,158,117,0.3);
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  .modal-send:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(29,158,117,0.4); }
-  .modal-send:disabled { background: #aaa; box-shadow: none; cursor: not-allowed; transform: none; }
-
-  /* ── 하단 여백 ── */
-  .bottom-pad { height: 3rem; }
-
-  /* ── 반짝임 애니메이션 ── */
-  @keyframes sparkle {
-    0% { transform: scale(0) rotate(0deg); opacity: 0; }
-    50% { opacity: 1; }
-    100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
-  }
-  .spark {
-    position: fixed;
-    pointer-events: none;
-    font-size: 1.2rem;
-    animation: sparkle 0.6s ease-out forwards;
-    z-index: 9999;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>아이-온 (I-ON) | 마음을 켜고(ON), 따뜻한(溫) 교실</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Nanum Gothic', sans-serif; background-color: #fdf6f0; -webkit-tap-highlight-color: transparent; }
+        .title-font { font-family: 'Gaegu', cursive; }
+        .pastel-blue { background-color: #e3f2fd; }
+        .pastel-pink { background-color: #fce4ec; }
+        .pastel-green { background-color: #e8f5e9; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.7rem center; background-size: 1em; }
+    </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col overflow-x-hidden no-scrollbar">
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-<!-- 헤더 -->
-<div class="header">
-  <div class="header-icon">🌟</div>
-  <h1>IB 학습자 상 & 감정 온도계</h1>
-  <p>오늘 나는 어떤 배움의 모습으로 시작할까요?</p>
-</div>
+        const SUPABASE_URL = 'https://uylrclocdtkninhctmit.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5bHJjbG9jZHRrbmluaGN0bWl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNTczMjAsImV4cCI6MjA5MDczMzMyMH0.7X2AcYlIMK161wi1mAGaiPnWxbdydTwMiET0X4q6jEs';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-<!-- 이름 입력 -->
-<div class="name-section">
-  <div class="name-card">
-    <div class="name-label">👤 내 이름</div>
-    <input class="name-input" id="nameInput" type="text" placeholder="이름을 입력하세요" maxlength="10" />
-  </div>
-</div>
+        // --- 효과음 엔진 ---
+        const AC = new (window.AudioContext || window.webkitAudioContext)();
+        const playSelect = () => {
+            if (AC.state === 'suspended') AC.resume();
+            const o = AC.createOscillator();
+            const g = AC.createGain();
+            o.connect(g); g.connect(AC.destination);
+            o.type = 'sine';
+            o.frequency.setValueAtTime(440, AC.currentTime);
+            o.frequency.exponentialRampToValueAtTime(660, AC.currentTime + 0.1);
+            g.gain.setValueAtTime(0.1, AC.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.2);
+            o.start(); o.stop(AC.currentTime + 0.2);
+        };
+        const playSuccess = () => {
+            if (AC.state === 'suspended') AC.resume();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                const o = AC.createOscillator();
+                const g = AC.createGain();
+                o.connect(g); g.connect(AC.destination);
+                o.type = 'sine';
+                const t = AC.currentTime + i * 0.1;
+                o.frequency.setValueAtTime(freq, t);
+                g.gain.setValueAtTime(0.1, t);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+                o.start(t); o.stop(t + 0.3);
+            });
+        };
 
-<!-- 진행 상태 알약 -->
-<div class="progress-section">
-  <div class="prog-pill" id="pill1">📋 학습자 상 선택 전</div>
-  <div class="prog-pill" id="pill2">🌡️ 감정 온도 선택 전</div>
-</div>
+        const SESSION_TIMEOUT_MS = 60 * 60 * 1000;
 
-<!-- Step 1: 학습자 상 -->
-<div class="section">
-  <div class="step-label">
-    <div class="step-num">1</div>
-    <span class="step-text">Step 1</span>
-  </div>
-  <div class="section-title">IB 학습자 상 선택하기</div>
-  <div class="section-sub">오늘 나는 어떤 모습으로 배울까요? 카드를 클릭해 보세요! 🖱️</div>
-  <div class="learner-grid" id="learnerGrid"></div>
-</div>
+        const Timer = ({ startTime, onExpire }) => {
+            const [timeLeft, setTimeLeft] = useState('');
+            useEffect(() => {
+                const update = () => {
+                    const diff = SESSION_TIMEOUT_MS - (Date.now() - startTime);
+                    if (diff <= 0) { onExpire(); return; }
+                    const m = Math.floor(diff / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
+                    setTimeLeft(`${m}:${s.toString().padStart(2, '0')}`);
+                };
+                update();
+                const interval = setInterval(update, 1000);
+                return () => clearInterval(interval);
+            }, [startTime]);
+            return (
+                <div className="bg-gray-50 px-3 py-1 rounded-lg font-mono font-bold text-xs text-gray-400">⏱️ {timeLeft}</div>
+            );
+        };
 
-<!-- Step 2: 감정 온도계 -->
-<div class="section" style="margin-top:1.75rem;">
-  <div class="step-label">
-    <div class="step-num">2</div>
-    <span class="step-text">Step 2</span>
-  </div>
-  <div class="section-title">감정 온도계</div>
-  <div class="section-sub">지금 내 기분은 몇 도인가요? 🌡️</div>
-  <div class="emotion-grid" id="emotionGrid"></div>
-</div>
+        const Header = ({ userInfo, onLogout, sessionStartTime }) => (
+            <header className="p-4 md:p-8 flex flex-col sm:flex-row justify-between items-center bg-white/50 backdrop-blur-sm sticky top-0 z-50 gap-4 text-nowrap">
+                <div className="flex items-center gap-3 cursor-pointer" onClick={() => { playSelect(); window.location.reload(); }}>
+                    <img src="logo.png" alt="로고" className="w-10 h-10 md:w-14 md:h-14 object-contain" />
+                    <div className="flex flex-col border-l-2 border-orange-200 pl-3">
+                        <h1 className="text-2xl md:text-3xl font-bold text-orange-600 title-font tracking-wider leading-tight">아이-온</h1>
+                        <p className="text-[10px] md:text-xs font-bold text-orange-400 leading-tight">마음을 켜고(ON), 따뜻한(溫) 교실</p>
+                    </div>
+                </div>
+                {userInfo && (
+                    <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-orange-100 text-sm">
+                        <span className="font-bold text-gray-600">{userInfo.userClass} {userInfo.userNumber}번 {userInfo.userName}</span>
+                        <Timer startTime={sessionStartTime} onExpire={onLogout} />
+                        <button onClick={() => { playSelect(); onLogout(); }} className="text-xs text-gray-400 underline">로그아웃</button>
+                    </div>
+                )}
+            </header>
+        );
 
-<div class="bottom-pad"></div>
+        const IntroPage = ({ onStart }) => {
+            const [grade, setGrade] = useState('');
+            const [classNum, setClassNum] = useState('');
+            const [uNumber, setUNumber] = useState('');
+            const [uName, setUName] = useState('');
+            return (
+                <main className="flex-grow flex items-center justify-center p-4 fade-in">
+                    <div className="bg-white p-8 md:p-12 rounded-[40px] shadow-2xl border-4 border-orange-50 max-w-md w-full text-center space-y-6">
+                        <h2 className="text-4xl font-black text-gray-800 title-font">반가워요! ✨</h2>
+                        <div className="space-y-4 text-left">
+                            <div className="grid grid-cols-2 gap-4">
+                                <select value={grade} onChange={(e) => { playSelect(); setGrade(e.target.value); }} className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 focus:border-orange-200 outline-none font-bold bg-white">
+                                    <option value="">학년</option>
+                                    {[1, 2, 3].map(g => <option key={g} value={g}>{g}학년</option>)}
+                                </select>
+                                <select value={classNum} onChange={(e) => { playSelect(); setClassNum(e.target.value); }} className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 focus:border-orange-200 outline-none font-bold bg-white">
+                                    <option value="">반</option>
+                                    {[1, 2].map(c => <option key={c} value={c}>{c}반</option>)}
+                                    <option value="늘품">늘품반</option>
+                                </select>
+                            </div>
+                            <input type="number" value={uNumber} onChange={(e) => setUNumber(e.target.value)} placeholder="번호" className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 focus:border-orange-200 outline-none font-bold" />
+                            <input type="text" value={uName} onChange={(e) => setUName(e.target.value)} placeholder="이름" className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 focus:border-orange-200 outline-none font-bold" />
+                        </div>
+                        <button disabled={!grade || !classNum || !uNumber || !uName} onClick={() => { playSelect(); onStart({ userClass: `${grade}-${classNum}`, userNumber: uNumber, userName: uName }); }} className="w-full py-4 rounded-3xl text-xl font-black bg-orange-500 text-white shadow-lg">시작하기 🚀</button>
+                    </div>
+                </main>
+            );
+        };
 
-<!-- 모달 -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-box">
-    <div class="modal-confetti" id="mConfetti">🎉🎊🌟</div>
-    <div class="modal-learner-icon" id="mLearnerIcon"></div>
-    <div class="modal-title" id="mTitle"></div>
-    <div class="modal-body" id="mBody"></div>
-    <div class="modal-emo-bar" id="mEmoBar"></div>
-    <button class="modal-send" id="sendBtn" onclick="sendToSheet()">📤 선생님께 전송하기</button>
-    <button class="modal-close" onclick="closeModal()">✨ 다시 선택하기</button>
-  </div>
-</div>
+        const LandingPage = ({ onSelectView, userInfo }) => {
+            const isNeulpum = userInfo?.userClass?.includes('늘품');
+            const menus = [
+                { id: 'morning', title: 'Morning ON', subtitle: '아침 등교 / 정서 체크', icon: '🌅', color: 'pastel-blue', textColor: 'text-blue-700' },
+                { id: 'class', title: 'Class ON', subtitle: isNeulpum ? 'IB학습자상 / 나의 감정' : '과목 확인 / 나의 배움 목표는?', icon: '🎒', color: 'pastel-pink', textColor: 'text-pink-700' },
+                { id: 'reflect', title: 'Reflect ON', subtitle: '수업 성찰 / 감정 기록', icon: '✨', color: 'pastel-green', textColor: 'text-green-700' }
+            ];
+            return (
+                <main className="flex-grow flex flex-col items-center justify-center p-6 max-w-[1200px] mx-auto w-full fade-in space-y-12">
+                    <h2 className="text-3xl md:text-5xl font-black text-gray-800 title-font text-center">어디에 접속할까요?</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                        {menus.map(m => (
+                            <div key={m.id} onClick={() => { playSelect(); onSelectView(m.id); }} className={`p-10 rounded-[40px] border-4 border-white shadow-xl ${m.color} cursor-pointer transition-all hover:-translate-y-2 flex flex-col items-center text-center`}>
+                                <div className="text-6xl mb-4">{m.icon}</div>
+                                <h3 className={`text-2xl font-black ${m.textColor}`}>{m.title}</h3>
+                                <p className="text-gray-600 font-bold whitespace-nowrap">{m.subtitle}</p>
+                            </div>
+                        ))}
+                    </div>
+                </main>
+            );
+        };
 
-<script>
-// ── 데이터 ──────────────────────────────────────────
-const LEARNERS = [
-  { icon:"🔍", name:"탐구하는 사람",      eng:"Inquirer",      desc:"궁금한 걸 참지 않고 질문해요!" },
-  { icon:"📚", name:"지식이 풍부한 사람",  eng:"Knowledgeable", desc:"여러 분야를 깊이 공부해요!" },
-  { icon:"💭", name:"생각하는 사람",       eng:"Thinker",       desc:"어려운 문제도 차근차근 생각해요!" },
-  { icon:"💬", name:"소통하는 사람",       eng:"Communicator",  desc:"내 생각을 잘 말하고 들어요!" },
-  { icon:"🛡️", name:"원칙을 지키는 사람",  eng:"Principled",    desc:"옳고 그름을 알고 바르게 행동해요!" },
-  { icon:"🌍", name:"열린 마음을 가진 사람",eng:"Open-minded",   desc:"다른 사람 생각도 존중해요!" },
-  { icon:"❤️", name:"배려하는 사람",       eng:"Caring",        desc:"친구와 주변을 따뜻하게 도와요!" },
-  { icon:"🎯", name:"도전하는 사람",       eng:"Risk-taker",    desc:"새로운 것도 용감하게 도전해요!" },
-  { icon:"⚖️", name:"균형 잡힌 사람",      eng:"Balanced",      desc:"공부, 운동, 쉬기를 골고루 해요!" },
-  { icon:"🪞", name:"성찰하는 사람",       eng:"Reflective",    desc:"내가 잘한 것, 더 할 것을 돌아봐요!" }
-];
+        const MorningOn = ({ onBack, userInfo }) => {
+            const [step, setStep] = useState(1);
+            const [temp, setTemp] = useState(3);
+            const [missions, setMissions] = useState([
+                { id: 1, text: '선생님, 친구들과 웃으며 인사했나요?', checked: false },
+                { id: 2, text: '휴대폰을 정해진 곳에 제출했나요?', checked: false },
+                { id: 3, text: '반 별 아침활동을 할 준비가 되었나요?', checked: false }
+            ]);
+            const emotions = [
+                { value: 1, label: '조금 힘들어요', icon: '☁️', color: 'bg-blue-400' },
+                { value: 2, label: '그저 그래요', icon: '⛅', color: 'bg-teal-400' },
+                { value: 3, label: '보통이에요', icon: '☀️', color: 'bg-green-400' },
+                { value: 4, label: '기분 좋아요', icon: '🌈', color: 'bg-orange-400' },
+                { value: 5, label: '최고예요!', icon: '🔥', color: 'bg-red-400' }
+            ];
+            const handleSubmit = async () => {
+                playSelect();
+                const { error } = await supabaseClient.from('morning_checkin').insert([{ user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, temp, missions: missions.filter(m => m.checked).map(m => m.text) }]);
+                if(!error) { playSuccess(); alert('체크인 완료!'); onBack(); } else { alert('오류 발생'); }
+            };
+            return (
+                <main className="flex-grow flex flex-col items-center p-6 fade-in w-full max-w-4xl mx-auto">
+                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 font-bold mb-4">← 뒤로</button>
+                    {step === 1 ? (
+                        <div className="text-center space-y-10 w-full">
+                            <h2 className="text-3xl font-bold title-font">마음 온도는?</h2>
+                            <div className="flex justify-between items-end h-64 gap-2 pt-10">
+                                {emotions.map(e => (
+                                    <div key={e.value} onClick={() => { playSelect(); setTemp(e.value); }} className="flex-1 flex flex-col items-center cursor-pointer">
+                                        <div className={`mb-4 text-4xl md:text-6xl transition-all ${temp === e.value ? 'scale-125 opacity-100' : 'opacity-30 scale-90'}`}>{e.icon}</div>
+                                        <div className={`w-full rounded-2xl transition-all duration-500 ${temp === e.value ? e.color : 'bg-gray-100'}`} style={{ height: `${e.value * 20}%` }}></div>
+                                        <span className={`mt-4 text-xs font-black ${temp === e.value ? 'text-gray-800' : 'text-gray-300'}`}>{e.label}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => { playSelect(); setStep(2); }} className="w-full py-4 rounded-3xl bg-blue-500 text-white font-black text-xl mt-10 shadow-lg">다음으로</button>
+                        </div>
+                    ) : (
+                        <div className="space-y-6 w-full">
+                            <h2 className="text-3xl font-bold title-font text-center text-nowrap">아침 미션! ✅</h2>
+                            {missions.map(m => (
+                                <div key={m.id} onClick={() => { playSelect(); setMissions(missions.map(x => x.id === m.id ? {...x, checked: !x.checked} : x)); }} className={`p-5 rounded-2xl border-4 ${m.checked ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-50'} cursor-pointer font-bold text-xl text-nowrap`}>{m.checked ? '✅' : '⬜'} {m.text}</div>
+                            ))}
+                            <button onClick={handleSubmit} className="w-full py-4 rounded-3xl bg-orange-500 text-white font-black text-xl shadow-lg">완료 ✨</button>
+                        </div>
+                    )}
+                </main>
+            );
+        };
 
-const EMOTIONS = [
-  { level:1, icon:"😌", label:"1도", name:"차분해요",      words:"평화로워요\n집중할 수 있어요", bg:"#E6F1FB", border:"#3B8BEB", text:"#0C447C" },
-  { level:2, icon:"😊", label:"2도", name:"기분 좋아요",   words:"신나요\n즐거워요",             bg:"#E1F5EE", border:"#1D9E75", text:"#085041" },
-  { level:3, icon:"😐", label:"3도", name:"보통이에요",    words:"조금 피곤해요\n졸려요",         bg:"#FAEEDA", border:"#BA7517", text:"#633806" },
-  { level:4, icon:"😤", label:"4도", name:"불편해요",      words:"답답해요\n짜증나요",            bg:"#FAECE7", border:"#D85A30", text:"#4A1B0C" },
-  { level:5, icon:"😡", label:"5도", name:"많이 힘들어요", words:"화가 나요\n매우 흥분됐어요",     bg:"#FCEBEB", border:"#A32D2D", text:"#501313" }
-];
+        const ClassOn = ({ onBack, userInfo }) => {
+            const [step, setStep] = useState(1);
+            const [period, setPeriod] = useState('');
+            const [subject, setSubject] = useState('');
+            const [goal, setGoal] = useState('');
+            const [learner, setLearner] = useState(null);
+            const [emotion, setEmotion] = useState(null);
 
-let selLearner = null, selEmotion = null;
+            const isNeulpum = userInfo.userClass.includes('늘품');
+            const subjects = isNeulpum 
+                ? ['국어', '수학', '사회', '진로와직업']
+                : ['국어', '수학', '사회', '과학', '영어', '역사', '도덕', '체육', '진탐', '진로와직업', '스포츠클럽', '창체', '음악', '미술', '기술가정', '보건'];
 
-// ── Web Audio API 효과음 ─────────────────────────────
-const AC = new (window.AudioContext || window.webkitAudioContext)();
+            const LEARNERS = [
+                { icon:"🔍", name:"탐구하는 사람" }, { icon:"📚", name:"지식이 풍부한 사람" },
+                { icon:"💭", name:"생각하는 사람" }, { icon:"💬", name:"소통하는 사람" },
+                { icon:"🛡️", name:"원칙을 지키는 사람" }, { icon:"🌍", name:"열린 마음을 가진 사람" },
+                { icon:"❤️", name:"배려하는 사람" }, { icon:"🎯", name:"도전하는 사람" },
+                { icon:"⚖️", name:"균형 잡힌 사람" }, { icon:"🪞", name:"성찰하는 사람" }
+            ];
 
-function playSelect() {
-  const o = AC.createOscillator();
-  const g = AC.createGain();
-  o.connect(g); g.connect(AC.destination);
-  o.type = 'sine';
-  o.frequency.setValueAtTime(440, AC.currentTime);
-  o.frequency.exponentialRampToValueAtTime(660, AC.currentTime + 0.12);
-  g.gain.setValueAtTime(0.18, AC.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.22);
-  o.start(); o.stop(AC.currentTime + 0.22);
-}
+            const EMOTIONS = [
+                { level:1, icon:"😌", name:"차분해요" }, { level:2, icon:"😊", name:"기분 좋아요" },
+                { level:3, icon:"😐", name:"보통이에요" }, { level:4, icon:"😤", name:"불편해요" },
+                { level:5, icon:"😡", name:"많이 힘들어요" }
+            ];
 
-function playSuccess() {
-  const notes = [523.25, 659.25, 783.99, 1046.50];
-  notes.forEach((freq, i) => {
-    const o = AC.createOscillator();
-    const g = AC.createGain();
-    o.connect(g); g.connect(AC.destination);
-    o.type = 'sine';
-    const t = AC.currentTime + i * 0.12;
-    o.frequency.setValueAtTime(freq, t);
-    g.gain.setValueAtTime(0.15, t);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
-    o.start(t); o.stop(t + 0.28);
-  });
-}
+            const handleFinish = async () => {
+                playSelect();
+                let finalSubject = `[${period}/${subject}] ${goal}`;
+                if (isNeulpum) {
+                    finalSubject = `[${period}/${subject}] ${learner.icon}${learner.name} | ${emotion.icon}${emotion.name}`;
+                }
 
-function resumeAC() {
-  if (AC.state === 'suspended') AC.resume();
-}
+                const { error } = await supabaseClient.from('class_preparation').insert([{ 
+                    user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, subject: finalSubject
+                }]);
+                if(!error) { playSuccess(); alert('준비 완료! 오늘도 즐겁게 배워봐요! 🌟'); onBack(); } else { alert('오류 발생'); }
+            };
 
-// ── 반짝임 파티클 ──────────────────────────────────
-function spawnSparks(x, y) {
-  const sparks = ['✨','⭐','💫','🌟','✦'];
-  for (let i = 0; i < 5; i++) {
-    const el = document.createElement('div');
-    el.className = 'spark';
-    el.textContent = sparks[Math.floor(Math.random() * sparks.length)];
-    el.style.left = (x + (Math.random()-0.5)*60) + 'px';
-    el.style.top  = (y + (Math.random()-0.5)*60) + 'px';
-    el.style.animationDelay = (Math.random()*0.2) + 's';
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 700);
-  }
-}
+            return (
+                <main className="flex-grow flex flex-col items-center p-6 fade-in w-full max-w-4xl mx-auto">
+                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 font-bold mb-4">← 뒤로</button>
+                    
+                    {step === 1 && (
+                        <div className="w-full text-center space-y-8">
+                            <h2 className="text-3xl font-bold title-font">지금은 몇 교시인가요?</h2>
+                            <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
+                                {[1, 2, 3, 4, 5, 6, 7].map(p => (
+                                    <div key={p} onClick={() => { playSelect(); setPeriod(`${p}교시`); }} className={`p-4 rounded-2xl border-4 text-center font-black text-lg cursor-pointer ${period === `${p}교시` ? 'bg-pink-500 text-white border-pink-200' : 'bg-white border-gray-50'}`}>{p}</div>
+                                ))}
+                            </div>
+                            {period && <button onClick={() => { playSelect(); setStep(2); }} className="w-full py-4 rounded-3xl bg-pink-500 text-white font-black text-xl mt-8 shadow-lg">다음으로</button>}
+                        </div>
+                    )}
 
-// ── 학습자 카드 렌더링 ──────────────────────────────
-const grid = document.getElementById('learnerGrid');
-LEARNERS.forEach((l, i) => {
-  const card = document.createElement('div');
-  card.className = 'lcard';
-  card.innerHTML = `
-    <span class="lcard-icon">${l.icon}</span>
-    <div class="lcard-name">${l.name}</div>
-    <div class="lcard-eng">${l.eng}</div>
-    <div class="lcard-desc">${l.desc}</div>`;
-  card.addEventListener('click', (e) => {
-    resumeAC();
-    document.querySelectorAll('.lcard').forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-    selLearner = l;
-    playSelect();
-    const r = card.getBoundingClientRect();
-    spawnSparks(r.left + r.width/2, r.top + r.height/2);
-    document.getElementById('pill1').textContent = '✅ ' + l.name;
-    document.getElementById('pill1').classList.add('done');
-    checkBoth();
-  });
-  grid.appendChild(card);
-});
+                    {step === 2 && (
+                        <div className="w-full text-center space-y-8">
+                            <h2 className="text-3xl font-bold title-font">어떤 수업인가요? ({period})</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full overflow-y-auto max-h-[50vh] p-2 no-scrollbar">
+                                {subjects.map(s => (
+                                    <div key={s} onClick={() => { playSelect(); setSubject(s); }} className={`p-6 rounded-3xl border-4 text-center font-black text-xl cursor-pointer ${subject === s ? 'bg-pink-500 text-white border-pink-200' : 'bg-white border-gray-50'}`}>{s}</div>
+                                ))}
+                            </div>
+                            <div className="flex gap-4">
+                                <button onClick={() => { playSelect(); setStep(1); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                {subject && <button onClick={() => { playSelect(); setStep(3); }} className="flex-[2] py-4 rounded-3xl bg-pink-500 text-white font-black text-xl shadow-lg">다음으로</button>}
+                            </div>
+                        </div>
+                    )}
 
-// ── 감정 버튼 렌더링 ───────────────────────────────
-const emoGrid = document.getElementById('emotionGrid');
-EMOTIONS.forEach((e) => {
-  const btn = document.createElement('div');
-  btn.className = `emo-btn emo-${e.level}`;
-  btn.innerHTML = `
-    <span class="emo-icon">${e.icon}</span>
-    <span class="emo-temp">${e.label} — ${e.name}</span>
-    <span class="emo-words">${e.words}</span>`;
-  btn.addEventListener('click', () => {
-    resumeAC();
-    document.querySelectorAll('.emo-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selEmotion = e;
-    playSelect();
-    const r = btn.getBoundingClientRect();
-    spawnSparks(r.left + r.width/2, r.top + r.height/2);
-    document.getElementById('pill2').textContent = '✅ 감정 ' + e.level + '도';
-    document.getElementById('pill2').classList.add('done');
-    checkBoth();
-  });
-  emoGrid.appendChild(btn);
-});
+                    {step === 3 && !isNeulpum && (
+                        <div className="w-full text-center space-y-8">
+                            <h2 className="text-3xl font-bold title-font">이번 시간 나의 목표는 무엇인가요? ✏️</h2>
+                            <p className="text-sm text-gray-500 font-bold">({period} {subject})</p>
+                            <textarea value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="" className="w-full h-40 p-6 rounded-[30px] border-4 border-pink-50 outline-none text-lg focus:border-pink-200 transition-all shadow-inner" />
+                            <div className="flex gap-4">
+                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                <button disabled={!goal.trim()} onClick={handleFinish} className={`flex-[2] py-4 rounded-3xl font-black text-xl text-white ${goal.trim() ? 'bg-pink-500 shadow-lg' : 'bg-gray-200'}`}>준비 완료! 🚀</button>
+                            </div>
+                        </div>
+                    )}
 
-// ── 두 가지 선택 완료 체크 ─────────────────────────
-function checkBoth() {
-  if (!selLearner || !selEmotion) return;
-  setTimeout(showModal, 400);
-}
+                    {step === 3 && isNeulpum && (
+                        <div className="w-full text-center space-y-8">
+                            <h2 className="text-2xl md:text-3xl font-bold title-font">나는 어떤 모습으로 배울까요? 🌟</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 overflow-y-auto max-h-[50vh] p-2 no-scrollbar">
+                                {LEARNERS.map(l => (
+                                    <div key={l.name} onClick={() => { playSelect(); setLearner(l); }} className={`p-4 rounded-2xl border-4 flex flex-col items-center gap-2 cursor-pointer transition-all ${learner?.name === l.name ? 'bg-purple-500 text-white border-purple-200 scale-105 shadow-md' : 'bg-white border-gray-50'}`}>
+                                        <span className="text-3xl">{l.icon}</span>
+                                        <span className="text-[10px] md:text-xs font-bold leading-tight break-keep">{l.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex gap-4 pt-4">
+                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                {learner && <button onClick={() => { playSelect(); setStep(4); }} className="flex-[2] py-4 rounded-3xl bg-purple-600 text-white font-black text-xl shadow-lg">다음으로</button>}
+                            </div>
+                        </div>
+                    )}
 
-// ── 모달 표시 ─────────────────────────────────────
-function showModal() {
-  const name = document.getElementById('nameInput').value.trim() || '학생';
-  const confettiMap = { 1:'😌✨💙', 2:'😊🎉💚', 3:'😐💛⭐', 4:'😤🔥💪', 5:'😡💪🌈' };
-  const encourageMap = {
-    1: "차분하고 집중된 상태네요. 오늘 최고의 수업이 될 거예요!",
-    2: "기분이 좋아 보여요! 에너지가 넘치는 수업이 될 거예요!",
-    3: "보통인 날도 있어요. 천천히 함께 시작해 봐요!",
-    4: "조금 불편한 마음이 있군요. 선생님께 말해도 괜찮아요!",
-    5: "많이 힘든가요? 잠깐 숨을 크게 쉬어봐요. 💙"
-  };
+                    {step === 4 && isNeulpum && (
+                        <div className="w-full text-center space-y-8">
+                            <h2 className="text-2xl md:text-3xl font-bold title-font">지금 내 기분은 몇 도인가요? 🌡️</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                {EMOTIONS.map(e => (
+                                    <div key={e.level} onClick={() => { playSelect(); setEmotion(e); }} className={`p-6 rounded-3xl border-4 flex flex-col items-center gap-3 cursor-pointer transition-all ${emotion?.level === e.level ? 'bg-orange-500 text-white border-orange-200 scale-105 shadow-md' : 'bg-white border-gray-50'}`}>
+                                        <span className="text-5xl">{e.icon}</span>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-black">{e.level}도</span>
+                                            <span className="text-xs font-bold opacity-80">{e.name}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex gap-4 pt-8">
+                                <button onClick={() => { playSelect(); setStep(3); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                {emotion && <button onClick={handleFinish} className="flex-[2] py-4 rounded-3xl bg-orange-600 text-white font-black text-xl shadow-lg">준비 완료! 🚀</button>}
+                            </div>
+                        </div>
+                    )}
+                </main>
+            );
+        };
 
-  document.getElementById('mConfetti').textContent = confettiMap[selEmotion.level];
-  document.getElementById('mLearnerIcon').textContent = selLearner.icon;
-  document.getElementById('mTitle').innerHTML =
-    `오늘 <span class="modal-highlight">${name}</span>학생의 수업 준비 완료! 🎊`;
+        const ReflectOn = ({ onBack, userInfo }) => {
+            const [step, setStep] = useState(1);
+            const [period, setPeriod] = useState('');
+            const [subject, setSubject] = useState('');
+            const [rating, setRating] = useState(0);
+            const [reflection, setReflection] = useState('');
+            
+            const isNeulpum = userInfo.userClass.includes('늘품');
+            const subjects = isNeulpum 
+                ? ['국어', '수학', '사회', '진로와직업']
+                : ['국어', '수학', '사회', '과학', '영어', '역사', '도덕', '체육', '진탐', '진로와직업', '스포츠클럽', '창체', '음악', '미술', '기술가정', '보건'];
 
-  document.getElementById('mBody').innerHTML =
-    `<strong style="color:#3C3489">${name}</strong>학생은<br>
-     오늘 <strong style="color:#534AB7">「${selLearner.name} (${selLearner.eng})」</strong>의 모습으로<br>
-     수업에 참여해요!<br><br>
-     ${encourageMap[selEmotion.level]}`;
+            const handleFinish = async () => {
+                playSelect();
+                const { error } = await supabaseClient.from('reflect_record').insert([
+                    { user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, rating, reflection: `[${period}/${subject}] ${reflection}` }
+                ]);
+                if(!error) { playSuccess(); alert('성찰 완료!'); onBack(); } else { alert('오류 발생: ' + error.message); }
+            };
 
-  const bar = document.getElementById('mEmoBar');
-  bar.style.background = selEmotion.bg;
-  bar.style.color = selEmotion.text;
-  bar.style.border = `2px solid ${selEmotion.border}`;
-  bar.innerHTML = `${selEmotion.icon} 현재 감정 온도 ${selEmotion.level}도 — ${selEmotion.name}`;
+            return (
+                <main className="flex-grow flex flex-col items-center p-6 fade-in w-full max-w-4xl mx-auto">
+                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 font-bold mb-4">← 뒤로</button>
+                    {step === 1 && (
+                        <div className="w-full text-center space-y-8">
+                            <h2 className="text-3xl font-bold title-font">몇 교시 수업을 성찰할까요?</h2>
+                            <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
+                                {[1, 2, 3, 4, 5, 6, 7].map(p => (
+                                    <div key={p} onClick={() => { playSelect(); setPeriod(`${p}교시`); }} className={`p-4 rounded-2xl border-4 text-center font-black text-lg cursor-pointer ${period === `${p}교시` ? 'bg-green-500 text-white border-green-200' : 'bg-white border-gray-50'}`}>{p}</div>
+                                ))}
+                            </div>
+                            {period && <button onClick={() => { playSelect(); setStep(2); }} className="w-full py-4 rounded-3xl bg-green-500 text-white font-black text-xl mt-8 shadow-lg">다음으로</button>}
+                        </div>
+                    )}
+                    {step === 2 && (
+                        <div className="w-full text-center space-y-8">
+                            <h2 className="text-3xl font-bold title-font">어떤 수업인가요? ({period})</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 overflow-y-auto max-h-[40vh] p-2 no-scrollbar">
+                                {subjects.map(s => (
+                                    <div key={s} onClick={() => { playSelect(); setSubject(s); }} className={`p-6 rounded-3xl border-4 text-center font-black text-xl cursor-pointer ${subject === s ? 'bg-green-500 text-white border-green-200' : 'bg-white border-gray-50'}`}>{s}</div>
+                                ))}
+                            </div>
+                            <div className="flex gap-4">
+                                <button onClick={() => { playSelect(); setStep(1); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                {subject && <button onClick={() => { playSelect(); setStep(3); }} className="flex-[2] py-4 rounded-3xl bg-green-500 text-white font-black text-xl shadow-lg">다음으로</button>}
+                            </div>
+                        </div>
+                    )}
+                    {step === 3 && (
+                        <div className="w-full text-center space-y-8">
+                            <h2 className="text-3xl font-bold title-font">수업은 어땠나요? ({period} {subject})</h2>
+                            <div className="flex justify-center gap-2 mb-6">
+                                {[1, 2, 3, 4, 5].map(s => (
+                                    <button key={s} onClick={() => { playSelect(); setRating(s); }} className={`text-5xl ${rating >= s ? 'text-yellow-400' : 'text-gray-200'}`}>★</button>
+                                ))}
+                            </div>
+                            <textarea value={reflection} onChange={(e) => setReflection(e.target.value)} placeholder="오늘의 배움을 기록해봐요." className="w-full h-40 p-6 rounded-3xl border-4 border-green-50 outline-none text-lg" />
+                            <div className="flex gap-4">
+                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                <button disabled={!rating || !reflection} onClick={handleFinish} className={`flex-[2] py-4 rounded-3xl font-black text-xl text-white ${rating && reflection ? 'bg-green-500 shadow-lg' : 'bg-gray-200'}`}>성찰 완료 ✨</button>
+                            </div>
+                        </div>
+                    )}
+                </main>
+            );
+        };
 
-  document.getElementById('modalOverlay').classList.add('show');
-  playSuccess();
-}
-
-
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyJuHN5l0EJDR_Gz9LzPH5b9bmEyOBASp39amOQ2TaoBGDXR_ELemmUVKgYCx-wCBdr/exec';
-
-async function sendToSheet() {
-  const btn = document.getElementById('sendBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ 전송 중...';
-  const name = document.getElementById('nameInput').value.trim() || '학생';
-  const payload = {
-    name: name,
-    learner: selLearner.name,
-    learnerEng: selLearner.eng,
-    emotionLevel: selEmotion.level,
-    emotionName: selEmotion.name
-  };
-  try {
-    await fetch(SHEET_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    btn.textContent = '✅ 선생님께 전송 완료!';
-    btn.style.background = '#085041';
-  } catch(err) {
-    btn.textContent = '❌ 전송 실패 - 다시 시도';
-    btn.disabled = false;
-  }
-}
-
-function closeModal() {
-  resumeAC();
-  document.getElementById('modalOverlay').classList.remove('show');
-}
-
-document.getElementById('modalOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-</script>
+        const App = () => {
+            const [view, setView] = useState('intro');
+            const [userInfo, setUserInfo] = useState(null);
+            const [sessionStartTime, setSessionStartTime] = useState(null);
+            useEffect(() => {
+                const saved = localStorage.getItem('ion_student_session');
+                if (saved) {
+                    const { info, timestamp } = JSON.parse(saved);
+                    if (Date.now() - timestamp < SESSION_TIMEOUT_MS) {
+                        setUserInfo(info); setSessionStartTime(timestamp); setView('landing');
+                    } else { localStorage.removeItem('ion_student_session'); }
+                }
+            }, []);
+            const handleStart = (info) => {
+                const now = Date.now();
+                localStorage.setItem('ion_student_session', JSON.stringify({ info, timestamp: now }));
+                setUserInfo(info); setSessionStartTime(now); setView('landing');
+            };
+            const handleLogout = () => {
+                localStorage.removeItem('ion_student_session');
+                setUserInfo(null); setSessionStartTime(null); setView('intro');
+            };
+            return (
+                <div className="flex flex-col min-h-screen">
+                    <Header userInfo={userInfo} onLogout={handleLogout} sessionStartTime={sessionStartTime} />
+                    <div className="flex-grow flex flex-col items-center">
+                        {view === 'intro' && <IntroPage onStart={handleStart} />}
+                        {view === 'landing' && <LandingPage onSelectView={setView} userInfo={userInfo} />}
+                        {view === 'morning' && <MorningOn onBack={() => setView('landing')} userInfo={userInfo} />}
+                        {view === 'class' && <ClassOn onBack={() => setView('landing')} userInfo={userInfo} />}
+                        {view === 'reflect' && <ReflectOn onBack={() => setView('landing')} userInfo={userInfo} />}
+                    </div>
+                    <footer className="p-8 text-center text-gray-400 text-sm">© 2026 I-ON | 산양중학교</footer>
+                </div>
+            );
+        };
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
