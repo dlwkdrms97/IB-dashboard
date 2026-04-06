@@ -5,24 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>아이-온 (I-ON) | 마음을 켜고(ON), 따뜻한(溫) 교실</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Nanum Gothic', sans-serif; background-color: #fdf6f0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Nanum Gothic', sans-serif; background-color: #fdf6f0; -webkit-tap-highlight-color: transparent; transition: background-color 0.3s ease; }
+        .dark body { background-color: #1a1a1a; }
         .title-font { font-family: 'Gaegu', cursive; }
         .pastel-blue { background-color: #e3f2fd; }
+        .dark .pastel-blue { background-color: #1e3a8a; }
         .pastel-pink { background-color: #fce4ec; }
+        .dark .pastel-pink { background-color: #831843; }
         .pastel-green { background-color: #e8f5e9; }
+        .dark .pastel-green { background-color: #064e3b; }
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.7rem center; background-size: 1em; }
+        .dark select { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden no-scrollbar">
+<body class="min-h-screen flex flex-col overflow-x-hidden no-scrollbar dark:bg-[#1a1a1a] dark:text-gray-100">
     <div id="root"></div>
     <script type="text/babel">
         const { useState, useEffect } = React;
@@ -78,26 +88,38 @@
                 return () => clearInterval(interval);
             }, [startTime]);
             return (
-                <div className="bg-gray-50 px-3 py-1 rounded-lg font-mono font-bold text-xs text-gray-400">⏱️ {timeLeft}</div>
+                <div className="bg-gray-50 dark:bg-gray-800 px-3 py-1 rounded-lg font-mono font-bold text-xs text-gray-400 dark:text-gray-500">⏱️ {timeLeft}</div>
             );
         };
 
-        const Header = ({ userInfo, onLogout, sessionStartTime }) => (
-            <header className="p-4 md:p-8 flex flex-col sm:flex-row justify-between items-center bg-white/50 backdrop-blur-sm sticky top-0 z-50 gap-4 text-nowrap">
-                <div className="flex items-center gap-3 cursor-pointer" onClick={() => { playSelect(); window.location.reload(); }}>
-                    <img src="logo.png" alt="로고" className="w-10 h-10 md:w-14 md:h-14 object-contain" />
-                    <div className="flex flex-col border-l-2 border-orange-200 pl-3">
-                        <h1 className="text-2xl md:text-3xl font-bold text-orange-600 title-font tracking-wider leading-tight">아이-온</h1>
-                        <p className="text-[10px] md:text-xs font-bold text-orange-400 leading-tight">마음을 켜고(ON), 따뜻한(溫) 교실</p>
+        const Header = ({ userInfo, onLogout, sessionStartTime, darkMode, toggleDarkMode }) => {
+            const today = new Date();
+            const dateString = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 (${['일', '월', '화', '수', '목', '금', '토'][today.getDay()]})`;
+
+            return (
+                <header className="p-4 md:p-8 flex flex-col sm:flex-row justify-between items-center bg-white/50 dark:bg-black/30 backdrop-blur-sm sticky top-0 z-50 gap-4 text-nowrap">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => { playSelect(); window.location.reload(); }}>
+                        <img src="logo.png" alt="로고" className="w-10 h-10 md:w-14 md:h-14 object-contain" />
+                        <div className="flex flex-col border-l-2 border-orange-200 dark:border-orange-900 pl-3">
+                            <h1 className="text-2xl md:text-3xl font-bold text-orange-600 dark:text-orange-500 title-font tracking-wider leading-tight">아이-온</h1>
+                            <div className="flex items-center gap-2">
+                                <p className="text-[10px] md:text-xs font-bold text-orange-400 dark:text-orange-600 leading-tight">마음을 켜고(ON), 따뜻한(溫) 교실</p>
+                                <span className="text-[10px] md:text-xs font-black text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{dateString}</span>
+                            </div>
+                        </div>
                     </div>
+                    <div className="flex items-center gap-3">
+                    <button onClick={() => { playSelect(); toggleDarkMode(); }} className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-orange-100 dark:border-gray-700 text-lg">
+                        {darkMode ? '☀️' : '🌙'}
+                    </button>
+                    {userInfo && (
+                        <div className="flex items-center gap-3 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-orange-100 dark:border-gray-700 text-sm">
+                            <span className="font-bold text-gray-600 dark:text-gray-300">{userInfo.userClass} {userInfo.userNumber}번 {userInfo.userName}</span>
+                            <Timer startTime={sessionStartTime} onExpire={onLogout} />
+                            <button onClick={() => { playSelect(); onLogout(); }} className="text-xs text-gray-400 dark:text-gray-500 underline">로그아웃</button>
+                        </div>
+                    )}
                 </div>
-                {userInfo && (
-                    <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-orange-100 text-sm">
-                        <span className="font-bold text-gray-600">{userInfo.userClass} {userInfo.userNumber}번 {userInfo.userName}</span>
-                        <Timer startTime={sessionStartTime} onExpire={onLogout} />
-                        <button onClick={() => { playSelect(); onLogout(); }} className="text-xs text-gray-400 underline">로그아웃</button>
-                    </div>
-                )}
             </header>
         );
 
@@ -108,24 +130,24 @@
             const [uName, setUName] = useState('');
             return (
                 <main className="flex-grow flex items-center justify-center p-4 fade-in">
-                    <div className="bg-white p-8 md:p-12 rounded-[40px] shadow-2xl border-4 border-orange-50 max-w-md w-full text-center space-y-6">
-                        <h2 className="text-4xl font-black text-gray-800 title-font">반가워요! ✨</h2>
+                    <div className="bg-white dark:bg-gray-900 p-8 md:p-12 rounded-[40px] shadow-2xl border-4 border-orange-50 dark:border-gray-800 max-w-md w-full text-center space-y-6">
+                        <h2 className="text-4xl font-black text-gray-800 dark:text-gray-100 title-font">반가워요! ✨</h2>
                         <div className="space-y-4 text-left">
                             <div className="grid grid-cols-2 gap-4">
-                                <select value={grade} onChange={(e) => { playSelect(); setGrade(e.target.value); }} className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 focus:border-orange-200 outline-none font-bold bg-white">
+                                <select value={grade} onChange={(e) => { playSelect(); setGrade(e.target.value); }} className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 dark:border-gray-800 focus:border-orange-200 dark:focus:border-orange-900 outline-none font-bold bg-white dark:bg-gray-800 dark:text-gray-100">
                                     <option value="">학년</option>
                                     {[1, 2, 3].map(g => <option key={g} value={g}>{g}학년</option>)}
                                 </select>
-                                <select value={classNum} onChange={(e) => { playSelect(); setClassNum(e.target.value); }} className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 focus:border-orange-200 outline-none font-bold bg-white">
+                                <select value={classNum} onChange={(e) => { playSelect(); setClassNum(e.target.value); }} className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 dark:border-gray-800 focus:border-orange-200 dark:focus:border-orange-900 outline-none font-bold bg-white dark:bg-gray-800 dark:text-gray-100">
                                     <option value="">반</option>
                                     {[1, 2].map(c => <option key={c} value={c}>{c}반</option>)}
                                     <option value="늘품">늘품반</option>
                                 </select>
                             </div>
-                            <input type="number" value={uNumber} onChange={(e) => setUNumber(e.target.value)} placeholder="번호" className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 focus:border-orange-200 outline-none font-bold" />
-                            <input type="text" value={uName} onChange={(e) => setUName(e.target.value)} placeholder="이름" className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 focus:border-orange-200 outline-none font-bold" />
+                            <input type="number" value={uNumber} onChange={(e) => setUNumber(e.target.value)} placeholder="번호" className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 dark:border-gray-800 focus:border-orange-200 dark:focus:border-orange-900 outline-none font-bold bg-white dark:bg-gray-800 dark:text-gray-100" />
+                            <input type="text" value={uName} onChange={(e) => setUName(e.target.value)} placeholder="이름" className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 dark:border-gray-800 focus:border-orange-200 dark:focus:border-orange-900 outline-none font-bold bg-white dark:bg-gray-800 dark:text-gray-100" />
                         </div>
-                        <button disabled={!grade || !classNum || !uNumber || !uName} onClick={() => { playSelect(); onStart({ userClass: `${grade}-${classNum}`, userNumber: uNumber, userName: uName }); }} className="w-full py-4 rounded-3xl text-xl font-black bg-orange-500 text-white shadow-lg">시작하기 🚀</button>
+                        <button disabled={!grade || !classNum || !uNumber || !uName} onClick={() => { playSelect(); onStart({ userClass: `${grade}-${classNum}`, userNumber: uNumber, userName: uName }); }} className="w-full py-4 rounded-3xl text-xl font-black bg-orange-500 text-white shadow-lg disabled:bg-gray-200 dark:disabled:bg-gray-800">시작하기 🚀</button>
                     </div>
                 </main>
             );
@@ -134,19 +156,19 @@
         const LandingPage = ({ onSelectView, userInfo }) => {
             const isNeulpum = userInfo?.userClass?.includes('늘품');
             const menus = [
-                { id: 'morning', title: 'Morning ON', subtitle: '아침 등교 / 정서 체크', icon: '🌅', color: 'pastel-blue', textColor: 'text-blue-700' },
-                { id: 'class', title: 'Class ON', subtitle: isNeulpum ? 'IB학습자상 / 나의 감정' : '과목 확인 / 나의 배움 목표는?', icon: '🎒', color: 'pastel-pink', textColor: 'text-pink-700' },
-                { id: 'reflect', title: 'Reflect ON', subtitle: '수업 성찰 / 감정 기록', icon: '✨', color: 'pastel-green', textColor: 'text-green-700' }
+                { id: 'morning', title: 'Morning ON', subtitle: '아침 등교 / 정서 체크', icon: '🌅', color: 'pastel-blue', textColor: 'text-blue-700 dark:text-blue-300' },
+                { id: 'class', title: 'Class ON', subtitle: isNeulpum ? 'IB학습자상 / 나의 감정' : '과목 확인 / 나의 배움 목표는?', icon: '🎒', color: 'pastel-pink', textColor: 'text-pink-700 dark:text-pink-300' },
+                { id: 'reflect', title: 'Reflect ON', subtitle: '수업 성찰 / 감정 기록', icon: '✨', color: 'pastel-green', textColor: 'text-green-700 dark:text-green-300' }
             ];
             return (
                 <main className="flex-grow flex flex-col items-center justify-center p-6 max-w-[1200px] mx-auto w-full fade-in space-y-12">
-                    <h2 className="text-3xl md:text-5xl font-black text-gray-800 title-font text-center">어디에 접속할까요?</h2>
+                    <h2 className="text-3xl md:text-5xl font-black text-gray-800 dark:text-gray-100 title-font text-center">어디에 접속할까요?</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
                         {menus.map(m => (
-                            <div key={m.id} onClick={() => { playSelect(); onSelectView(m.id); }} className={`p-10 rounded-[40px] border-4 border-white shadow-xl ${m.color} cursor-pointer transition-all hover:-translate-y-2 flex flex-col items-center text-center`}>
+                            <div key={m.id} onClick={() => { playSelect(); onSelectView(m.id); }} className={`p-10 rounded-[40px] border-4 border-white dark:border-gray-800 shadow-xl ${m.color} cursor-pointer transition-all hover:-translate-y-2 flex flex-col items-center text-center`}>
                                 <div className="text-6xl mb-4">{m.icon}</div>
                                 <h3 className={`text-2xl font-black ${m.textColor}`}>{m.title}</h3>
-                                <p className="text-gray-600 font-bold whitespace-nowrap">{m.subtitle}</p>
+                                <p className="text-gray-600 dark:text-gray-400 font-bold whitespace-nowrap">{m.subtitle}</p>
                             </div>
                         ))}
                     </div>
@@ -176,16 +198,16 @@
             };
             return (
                 <main className="flex-grow flex flex-col items-center p-6 fade-in w-full max-w-4xl mx-auto">
-                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 font-bold mb-4">← 뒤로</button>
+                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 dark:text-gray-500 font-bold mb-4">← 뒤로</button>
                     {step === 1 ? (
                         <div className="text-center space-y-10 w-full">
-                            <h2 className="text-3xl font-bold title-font">마음 온도는?</h2>
+                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">마음 온도는?</h2>
                             <div className="flex justify-between items-end h-64 gap-2 pt-10">
                                 {emotions.map(e => (
                                     <div key={e.value} onClick={() => { playSelect(); setTemp(e.value); }} className="flex-1 flex flex-col items-center cursor-pointer">
                                         <div className={`mb-4 text-4xl md:text-6xl transition-all ${temp === e.value ? 'scale-125 opacity-100' : 'opacity-30 scale-90'}`}>{e.icon}</div>
-                                        <div className={`w-full rounded-2xl transition-all duration-500 ${temp === e.value ? e.color : 'bg-gray-100'}`} style={{ height: `${e.value * 20}%` }}></div>
-                                        <span className={`mt-4 text-xs font-black ${temp === e.value ? 'text-gray-800' : 'text-gray-300'}`}>{e.label}</span>
+                                        <div className={`w-full rounded-2xl transition-all duration-500 ${temp === e.value ? e.color : 'bg-gray-100 dark:bg-gray-800'}`} style={{ height: `${e.value * 20}%` }}></div>
+                                        <span className={`mt-4 text-xs font-black ${temp === e.value ? 'text-gray-800 dark:text-gray-200' : 'text-gray-300 dark:text-gray-600'}`}>{e.label}</span>
                                     </div>
                                 ))}
                             </div>
@@ -193,9 +215,9 @@
                         </div>
                     ) : (
                         <div className="space-y-6 w-full">
-                            <h2 className="text-3xl font-bold title-font text-center text-nowrap">아침 미션! ✅</h2>
+                            <h2 className="text-3xl font-bold title-font text-center text-nowrap dark:text-gray-100">아침 미션! ✅</h2>
                             {missions.map(m => (
-                                <div key={m.id} onClick={() => { playSelect(); setMissions(missions.map(x => x.id === m.id ? {...x, checked: !x.checked} : x)); }} className={`p-5 rounded-2xl border-4 ${m.checked ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-50'} cursor-pointer font-bold text-xl text-nowrap`}>{m.checked ? '✅' : '⬜'} {m.text}</div>
+                                <div key={m.id} onClick={() => { playSelect(); setMissions(missions.map(x => x.id === m.id ? {...x, checked: !x.checked} : x)); }} className={`p-5 rounded-2xl border-4 ${m.checked ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800'} cursor-pointer font-bold text-xl text-nowrap dark:text-gray-200`}>{m.checked ? '✅' : '⬜'} {m.text}</div>
                             ))}
                             <button onClick={handleSubmit} className="w-full py-4 rounded-3xl bg-orange-500 text-white font-black text-xl shadow-lg">완료 ✨</button>
                         </div>
@@ -246,14 +268,14 @@
 
             return (
                 <main className="flex-grow flex flex-col items-center p-6 fade-in w-full max-w-4xl mx-auto">
-                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 font-bold mb-4">← 뒤로</button>
+                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 dark:text-gray-500 font-bold mb-4">← 뒤로</button>
                     
                     {step === 1 && (
                         <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font">지금은 몇 교시인가요?</h2>
+                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">지금은 몇 교시인가요?</h2>
                             <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
                                 {[1, 2, 3, 4, 5, 6, 7].map(p => (
-                                    <div key={p} onClick={() => { playSelect(); setPeriod(`${p}교시`); }} className={`p-4 rounded-2xl border-4 text-center font-black text-lg cursor-pointer ${period === `${p}교시` ? 'bg-pink-500 text-white border-pink-200' : 'bg-white border-gray-50'}`}>{p}</div>
+                                    <div key={p} onClick={() => { playSelect(); setPeriod(`${p}교시`); }} className={`p-4 rounded-2xl border-4 text-center font-black text-lg cursor-pointer ${period === `${p}교시` ? 'bg-pink-500 text-white border-pink-200' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>{p}</div>
                                 ))}
                             </div>
                             {period && <button onClick={() => { playSelect(); setStep(2); }} className="w-full py-4 rounded-3xl bg-pink-500 text-white font-black text-xl mt-8 shadow-lg">다음으로</button>}
@@ -262,14 +284,14 @@
 
                     {step === 2 && (
                         <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font">어떤 수업인가요? ({period})</h2>
+                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">어떤 수업인가요? ({period})</h2>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full overflow-y-auto max-h-[50vh] p-2 no-scrollbar">
                                 {subjects.map(s => (
-                                    <div key={s} onClick={() => { playSelect(); setSubject(s); }} className={`p-6 rounded-3xl border-4 text-center font-black text-xl cursor-pointer ${subject === s ? 'bg-pink-500 text-white border-pink-200' : 'bg-white border-gray-50'}`}>{s}</div>
+                                    <div key={s} onClick={() => { playSelect(); setSubject(s); }} className={`p-6 rounded-3xl border-4 text-center font-black text-xl cursor-pointer ${subject === s ? 'bg-pink-500 text-white border-pink-200' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>{s}</div>
                                 ))}
                             </div>
                             <div className="flex gap-4">
-                                <button onClick={() => { playSelect(); setStep(1); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                <button onClick={() => { playSelect(); setStep(1); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
                                 {subject && <button onClick={() => { playSelect(); setStep(3); }} className="flex-[2] py-4 rounded-3xl bg-pink-500 text-white font-black text-xl shadow-lg">다음으로</button>}
                             </div>
                         </div>
@@ -277,29 +299,29 @@
 
                     {step === 3 && !isNeulpum && (
                         <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font">이번 시간 나의 목표는 무엇인가요? ✏️</h2>
+                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">이번 시간 나의 목표는 무엇인가요? ✏️</h2>
                             <p className="text-sm text-gray-500 font-bold">({period} {subject})</p>
-                            <textarea value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="" className="w-full h-40 p-6 rounded-[30px] border-4 border-pink-50 outline-none text-lg focus:border-pink-200 transition-all shadow-inner" />
+                            <textarea value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="" className="w-full h-40 p-6 rounded-[30px] border-4 border-pink-50 dark:border-gray-800 outline-none text-lg focus:border-pink-200 dark:focus:border-pink-900 bg-white dark:bg-gray-900 dark:text-gray-100 transition-all shadow-inner" />
                             <div className="flex gap-4">
-                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
-                                <button disabled={!goal.trim()} onClick={handleFinish} className={`flex-[2] py-4 rounded-3xl font-black text-xl text-white ${goal.trim() ? 'bg-pink-500 shadow-lg' : 'bg-gray-200'}`}>준비 완료! 🚀</button>
+                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
+                                <button disabled={!goal.trim()} onClick={handleFinish} className={`flex-[2] py-4 rounded-3xl font-black text-xl text-white ${goal.trim() ? 'bg-pink-500 shadow-lg' : 'bg-gray-200 dark:bg-gray-800'}`}>준비 완료! 🚀</button>
                             </div>
                         </div>
                     )}
 
                     {step === 3 && isNeulpum && (
                         <div className="w-full text-center space-y-8">
-                            <h2 className="text-2xl md:text-3xl font-bold title-font">나는 어떤 모습으로 배울까요? 🌟</h2>
+                            <h2 className="text-2xl md:text-3xl font-bold title-font dark:text-gray-100">나는 어떤 모습으로 배울까요? 🌟</h2>
                             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 overflow-y-auto max-h-[50vh] p-2 no-scrollbar">
                                 {LEARNERS.map(l => (
-                                    <div key={l.name} onClick={() => { playSelect(); setLearner(l); }} className={`p-4 rounded-2xl border-4 flex flex-col items-center gap-2 cursor-pointer transition-all ${learner?.name === l.name ? 'bg-purple-500 text-white border-purple-200 scale-105 shadow-md' : 'bg-white border-gray-50'}`}>
+                                    <div key={l.name} onClick={() => { playSelect(); setLearner(l); }} className={`p-4 rounded-2xl border-4 flex flex-col items-center gap-2 cursor-pointer transition-all ${learner?.name === l.name ? 'bg-purple-500 text-white border-purple-200 scale-105 shadow-md' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>
                                         <span className="text-3xl">{l.icon}</span>
                                         <span className="text-[10px] md:text-xs font-bold leading-tight break-keep">{l.name}</span>
                                     </div>
                                 ))}
                             </div>
                             <div className="flex gap-4 pt-4">
-                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
                                 {learner && <button onClick={() => { playSelect(); setStep(4); }} className="flex-[2] py-4 rounded-3xl bg-purple-600 text-white font-black text-xl shadow-lg">다음으로</button>}
                             </div>
                         </div>
@@ -307,10 +329,10 @@
 
                     {step === 4 && isNeulpum && (
                         <div className="w-full text-center space-y-8">
-                            <h2 className="text-2xl md:text-3xl font-bold title-font">지금 내 기분은 몇 도인가요? 🌡️</h2>
+                            <h2 className="text-2xl md:text-3xl font-bold title-font dark:text-gray-100">지금 내 기분은 몇 도인가요? 🌡️</h2>
                             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                                 {EMOTIONS.map(e => (
-                                    <div key={e.level} onClick={() => { playSelect(); setEmotion(e); }} className={`p-6 rounded-3xl border-4 flex flex-col items-center gap-3 cursor-pointer transition-all ${emotion?.level === e.level ? 'bg-orange-500 text-white border-orange-200 scale-105 shadow-md' : 'bg-white border-gray-50'}`}>
+                                    <div key={e.level} onClick={() => { playSelect(); setEmotion(e); }} className={`p-6 rounded-3xl border-4 flex flex-col items-center gap-3 cursor-pointer transition-all ${emotion?.level === e.level ? 'bg-orange-500 text-white border-orange-200 scale-105 shadow-md' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>
                                         <span className="text-5xl">{e.icon}</span>
                                         <div className="flex flex-col">
                                             <span className="text-sm font-black">{e.level}도</span>
@@ -320,7 +342,7 @@
                                 ))}
                             </div>
                             <div className="flex gap-4 pt-8">
-                                <button onClick={() => { playSelect(); setStep(3); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                <button onClick={() => { playSelect(); setStep(3); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
                                 {emotion && <button onClick={handleFinish} className="flex-[2] py-4 rounded-3xl bg-orange-600 text-white font-black text-xl shadow-lg">준비 완료! 🚀</button>}
                             </div>
                         </div>
@@ -351,13 +373,13 @@
 
             return (
                 <main className="flex-grow flex flex-col items-center p-6 fade-in w-full max-w-4xl mx-auto">
-                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 font-bold mb-4">← 뒤로</button>
+                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 dark:text-gray-500 font-bold mb-4">← 뒤로</button>
                     {step === 1 && (
                         <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font">몇 교시 수업을 성찰할까요?</h2>
+                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">몇 교시 수업을 성찰할까요?</h2>
                             <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
                                 {[1, 2, 3, 4, 5, 6, 7].map(p => (
-                                    <div key={p} onClick={() => { playSelect(); setPeriod(`${p}교시`); }} className={`p-4 rounded-2xl border-4 text-center font-black text-lg cursor-pointer ${period === `${p}교시` ? 'bg-green-500 text-white border-green-200' : 'bg-white border-gray-50'}`}>{p}</div>
+                                    <div key={p} onClick={() => { playSelect(); setPeriod(`${p}교시`); }} className={`p-4 rounded-2xl border-4 text-center font-black text-lg cursor-pointer ${period === `${p}교시` ? 'bg-green-500 text-white border-green-200' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>{p}</div>
                                 ))}
                             </div>
                             {period && <button onClick={() => { playSelect(); setStep(2); }} className="w-full py-4 rounded-3xl bg-green-500 text-white font-black text-xl mt-8 shadow-lg">다음으로</button>}
@@ -365,30 +387,30 @@
                     )}
                     {step === 2 && (
                         <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font">어떤 수업인가요? ({period})</h2>
+                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">어떤 수업인가요? ({period})</h2>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 overflow-y-auto max-h-[40vh] p-2 no-scrollbar">
                                 {subjects.map(s => (
-                                    <div key={s} onClick={() => { playSelect(); setSubject(s); }} className={`p-6 rounded-3xl border-4 text-center font-black text-xl cursor-pointer ${subject === s ? 'bg-green-500 text-white border-green-200' : 'bg-white border-gray-50'}`}>{s}</div>
+                                    <div key={s} onClick={() => { playSelect(); setSubject(s); }} className={`p-6 rounded-3xl border-4 text-center font-black text-xl cursor-pointer ${subject === s ? 'bg-green-500 text-white border-green-200' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>{s}</div>
                                 ))}
                             </div>
                             <div className="flex gap-4">
-                                <button onClick={() => { playSelect(); setStep(1); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
+                                <button onClick={() => { playSelect(); setStep(1); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
                                 {subject && <button onClick={() => { playSelect(); setStep(3); }} className="flex-[2] py-4 rounded-3xl bg-green-500 text-white font-black text-xl shadow-lg">다음으로</button>}
                             </div>
                         </div>
                     )}
                     {step === 3 && (
                         <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font">수업은 어땠나요? ({period} {subject})</h2>
+                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">수업은 어땠나요? ({period} {subject})</h2>
                             <div className="flex justify-center gap-2 mb-6">
                                 {[1, 2, 3, 4, 5].map(s => (
-                                    <button key={s} onClick={() => { playSelect(); setRating(s); }} className={`text-5xl ${rating >= s ? 'text-yellow-400' : 'text-gray-200'}`}>★</button>
+                                    <button key={s} onClick={() => { playSelect(); setRating(s); }} className={`text-5xl ${rating >= s ? 'text-yellow-400' : 'text-gray-200 dark:text-gray-700'}`}>★</button>
                                 ))}
                             </div>
-                            <textarea value={reflection} onChange={(e) => setReflection(e.target.value)} placeholder="오늘의 배움을 기록해봐요." className="w-full h-40 p-6 rounded-3xl border-4 border-green-50 outline-none text-lg" />
+                            <textarea value={reflection} onChange={(e) => setReflection(e.target.value)} placeholder="오늘의 배움을 기록해봐요." className="w-full h-40 p-6 rounded-3xl border-4 border-green-50 dark:border-gray-800 outline-none text-lg bg-white dark:bg-gray-900 dark:text-gray-100" />
                             <div className="flex gap-4">
-                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 font-bold">이전</button>
-                                <button disabled={!rating || !reflection} onClick={handleFinish} className={`flex-[2] py-4 rounded-3xl font-black text-xl text-white ${rating && reflection ? 'bg-green-500 shadow-lg' : 'bg-gray-200'}`}>성찰 완료 ✨</button>
+                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
+                                <button disabled={!rating || !reflection} onClick={handleFinish} className={`flex-[2] py-4 rounded-3xl font-black text-xl text-white ${rating && reflection ? 'bg-green-500 shadow-lg' : 'bg-gray-200 dark:bg-gray-800'}`}>성찰 완료 ✨</button>
                             </div>
                         </div>
                     )}
@@ -400,6 +422,8 @@
             const [view, setView] = useState('intro');
             const [userInfo, setUserInfo] = useState(null);
             const [sessionStartTime, setSessionStartTime] = useState(null);
+            const [darkMode, setDarkMode] = useState(localStorage.getItem('ion_dark_mode') === 'true');
+
             useEffect(() => {
                 const saved = localStorage.getItem('ion_student_session');
                 if (saved) {
@@ -409,6 +433,16 @@
                     } else { localStorage.removeItem('ion_student_session'); }
                 }
             }, []);
+
+            useEffect(() => {
+                if (darkMode) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                localStorage.setItem('ion_dark_mode', darkMode);
+            }, [darkMode]);
+
             const handleStart = (info) => {
                 const now = Date.now();
                 localStorage.setItem('ion_student_session', JSON.stringify({ info, timestamp: now }));
@@ -419,8 +453,8 @@
                 setUserInfo(null); setSessionStartTime(null); setView('intro');
             };
             return (
-                <div className="flex flex-col min-h-screen">
-                    <Header userInfo={userInfo} onLogout={handleLogout} sessionStartTime={sessionStartTime} />
+                <div className="flex flex-col min-h-screen dark:bg-[#1a1a1a]">
+                    <Header userInfo={userInfo} onLogout={handleLogout} sessionStartTime={sessionStartTime} darkMode={darkMode} toggleDarkMode={() => setDarkMode(!darkMode)} />
                     <div className="flex-grow flex flex-col items-center">
                         {view === 'intro' && <IntroPage onStart={handleStart} />}
                         {view === 'landing' && <LandingPage onSelectView={setView} userInfo={userInfo} />}
@@ -428,7 +462,7 @@
                         {view === 'class' && <ClassOn onBack={() => setView('landing')} userInfo={userInfo} />}
                         {view === 'reflect' && <ReflectOn onBack={() => setView('landing')} userInfo={userInfo} />}
                     </div>
-                    <footer className="p-8 text-center text-gray-400 text-sm">© 2026 I-ON | 산양중학교</footer>
+                    <footer className="p-8 text-center text-gray-400 dark:text-gray-600 text-sm">© 2026 I-ON | 산양중학교</footer>
                 </div>
             );
         };
