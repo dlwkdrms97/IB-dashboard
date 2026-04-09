@@ -67,9 +67,10 @@
             const [records, setRecords] = useState([]);
             
             // Manage current school date (local system time)
-            const getLocalDate = (date) => {
-                const d = date || new Date();
-                return new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+            const getLocalDate = () => {
+                const now = new Date();
+                const kst = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+                return kst.toISOString().split('T')[0];
             };
             const [sessionDate, setSessionDate] = useState(getLocalDate());
 
@@ -261,7 +262,7 @@
                                             setSubmitting(true);
                                             const { error } = await supabaseClient.from('morning_checkin').insert([{ 
                                                 user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, 
-                                                temp, missions, session_date: sessionDate
+                                                temp, missions
                                             }]);
                                             setSubmitting(false);
                                             if(!error) { 
@@ -359,9 +360,7 @@
                                                     period: form.period, 
                                                     subject: form.subject,
                                                     subject_name: form.subject, 
-                                                    goal: form.goal,
-                                                    session_date: sessionDate
-                                                }]);
+                                                    goal: form.goal
                                                 }]);
                                                 setSubmitting(false);
                                                 if(!error) { 
@@ -460,8 +459,7 @@
                                                     subject: form.subject, 
                                                     rating: form.rating, 
                                                     content: form.content,
-                                                    reflection: `[${form.period} ${form.subject}] ${form.content}`,
-                                                    session_date: sessionDate
+                                                    reflection: `[${form.period} ${form.subject}] ${form.content}`
                                                 }]);
                                                 setSubmitting(false);
                                                 if(!error) { 
@@ -497,7 +495,7 @@
                                     if(!msg.trim()) return;
                                     setSubmitting(true);
                                     const { error } = await supabaseClient.from('heart_on').insert([{ 
-                                        user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, content: msg, session_date: sessionDate 
+                                        user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, content: msg 
                                     }]);
                                     setSubmitting(false);
                                     if(!error) { 
