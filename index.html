@@ -65,6 +65,13 @@
             const [darkMode, setDarkMode] = useState(localStorage.getItem('ion_dark') === 'true');
             const [showRecords, setShowRecords] = useState(false);
             const [records, setRecords] = useState([]);
+            
+            // Manage current school date (local system time)
+            const getLocalDate = (date) => {
+                const d = date || new Date();
+                return new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+            };
+            const [sessionDate, setSessionDate] = useState(getLocalDate());
 
             const isNeulpum = userInfo?.userClass?.includes('늘품');
             const currentSubjects = isNeulpum ? NEULPUM_SUBJECTS : SUBJECTS;
@@ -103,7 +110,10 @@
                     <div className="flex items-center gap-3">
                         <img src="logo.png" alt="로고" className="w-12 h-12 object-contain" />
                         <div>
-                            <h1 className="text-xl font-black tracking-tighter dark:text-white uppercase italic">I-ON</h1>
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-xl font-black tracking-tighter dark:text-white uppercase italic">I-ON</h1>
+                                <span className="px-2 py-0.5 rounded-full bg-brand-100 text-brand-600 text-[10px] font-black">{sessionDate}</span>
+                            </div>
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">마음을 켜고(ON), 따뜻한(溫) 교실</p>
                         </div>
                     </div>
@@ -251,7 +261,7 @@
                                             setSubmitting(true);
                                             const { error } = await supabaseClient.from('morning_checkin').insert([{ 
                                                 user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, 
-                                                temp, missions 
+                                                temp, missions, session_date: sessionDate
                                             }]);
                                             setSubmitting(false);
                                             if(!error) { 
@@ -349,7 +359,9 @@
                                                     period: form.period, 
                                                     subject: form.subject,
                                                     subject_name: form.subject, 
-                                                    goal: form.goal 
+                                                    goal: form.goal,
+                                                    session_date: sessionDate
+                                                }]);
                                                 }]);
                                                 setSubmitting(false);
                                                 if(!error) { 
@@ -448,7 +460,8 @@
                                                     subject: form.subject, 
                                                     rating: form.rating, 
                                                     content: form.content,
-                                                    reflection: `[${form.period} ${form.subject}] ${form.content}`
+                                                    reflection: `[${form.period} ${form.subject}] ${form.content}`,
+                                                    session_date: sessionDate
                                                 }]);
                                                 setSubmitting(false);
                                                 if(!error) { 
@@ -484,7 +497,7 @@
                                     if(!msg.trim()) return;
                                     setSubmitting(true);
                                     const { error } = await supabaseClient.from('heart_on').insert([{ 
-                                        user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, content: msg 
+                                        user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, content: msg, session_date: sessionDate 
                                     }]);
                                     setSubmitting(false);
                                     if(!error) { 
