@@ -3,510 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>아이-온 (I-ON) | 마음을 켜고(ON), 따뜻한(溫) 교실</title>
+    <title>아이-온 (I-ON) | 마음을 켜다</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#fff7ed', 100: '#ffedd5', 500: '#f97316', 600: '#ea580c' },
+                    },
+                    borderRadius: { '4xl': '2rem', '5xl': '3rem' }
+                }
+            }
         }
     </script>
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Nanum Gothic', sans-serif; background-color: #fdf6f0; -webkit-tap-highlight-color: transparent; transition: background-color 0.3s ease; }
-        .dark body { background-color: #1a1a1a; }
+        body { font-family: 'Pretendard', sans-serif; background-color: #fdf6f0; transition: all 0.5s; overflow-x: hidden; }
+        .dark body { background-color: #0a0a0a; color: #f1f5f9; }
         .title-font { font-family: 'Gaegu', cursive; }
-        .pastel-blue { background-color: #e3f2fd; }
-        .dark .pastel-blue { background-color: #1e3a8a; }
-        .pastel-pink { background-color: #fce4ec; }
-        .dark .pastel-pink { background-color: #831843; }
-        .pastel-green { background-color: #e8f5e9; }
-        .dark .pastel-green { background-color: #064e3b; }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .dark .glass { background: rgba(31, 31, 31, 0.7); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .gradient-orange { background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.7rem center; background-size: 1em; }
-        .dark select { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); }
+        input:focus, select:focus, textarea:focus { ring: 3px; ring-color: #f97316; }
+        .bento-card { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
+        .bento-card:active { transform: scale(0.95); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden no-scrollbar dark:bg-[#1a1a1a] dark:text-gray-100">
+<body class="min-h-screen no-scrollbar">
     <div id="root"></div>
     <script type="text/babel">
         const { useState, useEffect } = React;
+        const supabaseClient = supabase.createClient('https://uylrclocdtkninhctmit.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5bHJjbG9jZHRrbmluaGN0bWl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNTczMjAsImV4cCI6MjA5MDczMzMyMH0.7X2AcYlIMK161wi1mAGaiPnWxbdydTwMiET0X4q6jEs');
 
-        const SUPABASE_URL = 'https://uylrclocdtkninhctmit.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5bHJjbG9jZHRrbmluaGN0bWl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNTczMjAsImV4cCI6MjA5MDczMzMyMH0.7X2AcYlIMK161wi1mAGaiPnWxbdydTwMiET0X4q6jEs';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // --- 효과음 엔진 ---
-        const AC = new (window.AudioContext || window.webkitAudioContext)();
-        const playSelect = () => {
-            if (AC.state === 'suspended') AC.resume();
-            const o = AC.createOscillator();
-            const g = AC.createGain();
-            o.connect(g); g.connect(AC.destination);
-            o.type = 'sine';
-            o.frequency.setValueAtTime(440, AC.currentTime);
-            o.frequency.exponentialRampToValueAtTime(660, AC.currentTime + 0.1);
-            g.gain.setValueAtTime(0.1, AC.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.2);
-            o.start(); o.stop(AC.currentTime + 0.2);
-        };
-        const playSuccess = () => {
-            if (AC.state === 'suspended') AC.resume();
-            const notes = [523.25, 659.25, 783.99, 1046.50];
-            notes.forEach((freq, i) => {
-                const o = AC.createOscillator();
-                const g = AC.createGain();
-                o.connect(g); g.connect(AC.destination);
-                o.type = 'sine';
-                const t = AC.currentTime + i * 0.1;
-                o.frequency.setValueAtTime(freq, t);
-                g.gain.setValueAtTime(0.1, t);
-                g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
-                o.start(t); o.stop(t + 0.3);
-            });
-        };
-
-        const SESSION_TIMEOUT_MS = 60 * 60 * 1000;
-
-        const Timer = ({ startTime, onExpire }) => {
-            const [timeLeft, setTimeLeft] = useState('');
-            useEffect(() => {
-                const update = () => {
-                    const diff = SESSION_TIMEOUT_MS - (Date.now() - startTime);
-                    if (diff <= 0) { onExpire(); return; }
-                    const m = Math.floor(diff / 60000);
-                    const s = Math.floor((diff % 60000) / 1000);
-                    setTimeLeft(`${m}:${s.toString().padStart(2, '0')}`);
-                };
-                update();
-                const interval = setInterval(update, 1000);
-                return () => clearInterval(interval);
-            }, [startTime]);
-            return (
-                <div className="bg-gray-50 dark:bg-gray-800 px-3 py-1 rounded-lg font-mono font-bold text-xs text-gray-400 dark:text-gray-500">⏱️ {timeLeft}</div>
-            );
-        };
-
-        const Header = ({ userInfo, onLogout, sessionStartTime, darkMode, toggleDarkMode }) => {
-            const [today, setToday] = useState(new Date());
-            useEffect(() => {
-                const interval = setInterval(() => {
-                    const now = new Date();
-                    if (now.getDate() !== today.getDate()) setToday(now);
-                }, 60000);
-                return () => clearInterval(interval);
-            }, [today]);
-            const dateString = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 (${['일', '월', '화', '수', '목', '금', '토'][today.getDay()]})`;
-
-            return (
-                <header className="p-4 md:p-8 flex flex-col sm:flex-row justify-between items-center bg-white/50 dark:bg-black/30 backdrop-blur-sm sticky top-0 z-50 gap-4 text-nowrap">
-                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => { playSelect(); window.location.reload(); }}>
-                        <img src="logo.png" alt="로고" className="w-10 h-10 md:w-14 md:h-14 object-contain" />
-                        <div className="flex flex-col border-l-2 border-orange-200 dark:border-orange-900 pl-3">
-                            <h1 className="text-2xl md:text-3xl font-bold text-orange-600 dark:text-orange-500 title-font tracking-wider leading-tight">아이-온</h1>
-                            <div className="flex items-center gap-2">
-                                <p className="text-[10px] md:text-xs font-bold text-orange-400 dark:text-orange-600 leading-tight">마음을 켜고(ON), 따뜻한(溫) 교실</p>
-                                <span className="text-[10px] md:text-xs font-black text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{dateString}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                    <button onClick={() => { playSelect(); toggleDarkMode(); }} className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm border border-orange-100 dark:border-gray-700 text-lg">
-                        {darkMode ? '☀️' : '🌙'}
-                    </button>
-                    {userInfo && (
-                        <div className="flex items-center gap-3 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-orange-100 dark:border-gray-700 text-sm">
-                            <span className="font-bold text-gray-600 dark:text-gray-300">{userInfo.userClass} {userInfo.userNumber}번 {userInfo.userName}</span>
-                            <Timer startTime={sessionStartTime} onExpire={onLogout} />
-                            <button onClick={() => { playSelect(); onLogout(); }} className="text-xs text-gray-400 dark:text-gray-500 underline">로그아웃</button>
-                        </div>
-                    )}
-                </div>
-            </header>
-            );
-        };
-
-        const IntroPage = ({ onStart }) => {
-            const [grade, setGrade] = useState('');
-            const [classNum, setClassNum] = useState('');
-            const [uNumber, setUNumber] = useState('');
-            const [uName, setUName] = useState('');
-            const [pin, setPin] = useState('');
-            const [isChecking, setIsChecking] = useState(false);
-
-            const handleLoginAttempt = async () => {
-                if (!grade || !classNum || !uNumber || !uName || !pin) return;
-                
-                setIsChecking(true);
-                playSelect();
-
-                const userClass = `${grade}-${classNum}`;
-                const { data, error } = await supabaseClient
-                    .from('student_info')
-                    .select('*')
-                    .eq('user_class', userClass)
-                    .eq('user_number', uNumber)
-                    .eq('user_name', uName)
-                    .eq('pin', pin)
-                    .single();
-
-                if (error || !data) {
-                    alert('로그인 정보가 일치하지 않습니다. 이름, 번호, PIN을 다시 확인해주세요.');
-                    setIsChecking(false);
-                } else {
-                    onStart({ userClass, userNumber: uNumber, userName: uName });
-                }
-            };
-
-            return (
-                <main className="flex-grow flex items-center justify-center p-4 fade-in">
-                    <div className="bg-white dark:bg-gray-900 p-8 md:p-12 rounded-[40px] shadow-2xl border-4 border-orange-50 dark:border-gray-800 max-w-md w-full text-center space-y-6">
-                        <h2 className="text-4xl font-black text-gray-800 dark:text-gray-100 title-font">학생 로그인 🧑‍🎓</h2>
-                        <div className="space-y-4 text-left">
-                            <div className="grid grid-cols-2 gap-4">
-                                <select value={grade} onChange={(e) => { playSelect(); setGrade(e.target.value); }} className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 dark:border-gray-800 focus:border-orange-200 dark:focus:border-orange-900 outline-none font-bold bg-white dark:bg-gray-800 dark:text-gray-100">
-                                    <option value="">학년</option>
-                                    {[1, 2, 3].map(g => <option key={g} value={g}>{g}학년</option>)}
-                                </select>
-                                <select value={classNum} onChange={(e) => { playSelect(); setClassNum(e.target.value); }} className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 dark:border-gray-800 focus:border-orange-200 dark:focus:border-orange-900 outline-none font-bold bg-white dark:bg-gray-800 dark:text-gray-100">
-                                    <option value="">반</option>
-                                    {[1, 2].map(c => <option key={c} value={c}>{c}반</option>)}
-                                    <option value="늘품">늘품반</option>
-                                </select>
-                            </div>
-                            <input type="number" value={uNumber} onChange={(e) => setUNumber(e.target.value)} placeholder="번호" className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 dark:border-gray-800 focus:border-orange-200 dark:focus:border-orange-900 outline-none font-bold bg-white dark:bg-gray-800 dark:text-gray-100" />
-                            <input type="text" value={uName} onChange={(e) => setUName(e.target.value)} placeholder="이름" className="w-full px-4 py-3 rounded-2xl border-4 border-gray-50 dark:border-gray-800 focus:border-orange-200 dark:focus:border-orange-900 outline-none font-bold bg-white dark:bg-gray-800 dark:text-gray-100" />
-                            <div className="relative">
-                                <input type="password" maxLength="4" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="PIN 번호 (4자리)" className="w-full px-4 py-3 rounded-2xl border-4 border-orange-100 dark:border-orange-900/30 focus:border-orange-400 dark:focus:border-orange-700 outline-none font-bold bg-white dark:bg-gray-800 dark:text-gray-100 tracking-widest" />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-orange-300">보안 입력</span>
-                            </div>
-                        </div>
-                        <button disabled={!grade || !classNum || !uNumber || !uName || !pin || isChecking} onClick={handleLoginAttempt} className="w-full py-4 rounded-3xl text-xl font-black bg-orange-500 text-white shadow-lg disabled:bg-gray-200 dark:disabled:bg-gray-800">
-                            {isChecking ? '확인 중...' : '시작하기 🚀'}
-                        </button>
-                    </div>
-                </main>
-            );
-        };
-
-        const LandingPage = ({ onSelectView, userInfo }) => {
-            const isNeulpum = userInfo?.userClass?.includes('늘품');
-            const menus = [
-                { id: 'morning', title: 'Morning ON', subtitle: '아침 등교 / 정서 체크', icon: '🌅', color: 'pastel-blue', textColor: 'text-blue-700 dark:text-blue-300' },
-                { id: 'class', title: 'Class ON', subtitle: isNeulpum ? 'IB학습자상 / 나의 감정' : '과목 확인 / 나의 배움 목표는?', icon: '🎒', color: 'pastel-pink', textColor: 'text-pink-700 dark:text-pink-300' },
-                { id: 'reflect', title: 'Reflect ON', subtitle: '수업 성찰 / 감정 기록', icon: '✨', color: 'pastel-green', textColor: 'text-green-700 dark:text-green-300' }
-            ];
-            return (
-                <main className="flex-grow flex flex-col items-center justify-center p-6 max-w-[1200px] mx-auto w-full fade-in space-y-12">
-                    <h2 className="text-3xl md:text-5xl font-black text-gray-800 dark:text-gray-100 title-font text-center">어디에 접속할까요?</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                        {menus.map(m => (
-                            <div key={m.id} onClick={() => { playSelect(); onSelectView(m.id); }} className={`p-10 rounded-[40px] border-4 border-white dark:border-gray-800 shadow-xl ${m.color} cursor-pointer transition-all hover:-translate-y-2 flex flex-col items-center text-center`}>
-                                <div className="text-6xl mb-4">{m.icon}</div>
-                                <h3 className={`text-2xl font-black ${m.textColor}`}>{m.title}</h3>
-                                <p className="text-gray-600 dark:text-gray-400 font-bold whitespace-nowrap">{m.subtitle}</p>
-                            </div>
-                        ))}
-                    </div>
-                </main>
-            );
-        };
-
-        const MorningOn = ({ onBack, userInfo }) => {
-            const [step, setStep] = useState(1);
-            const [temp, setTemp] = useState(3);
-            const [missions, setMissions] = useState([
-                { id: 1, text: '선생님, 친구들과 웃으며 인사했나요?', checked: false },
-                { id: 2, text: '휴대폰을 정해진 곳에 제출했나요?', checked: false },
-                { id: 3, text: '반 별 아침활동을 할 준비가 되었나요?', checked: false }
-            ]);
-            const emotions = [
-                { value: 1, label: '조금 힘들어요', icon: '☁️', color: 'bg-blue-400' },
-                { value: 2, label: '그저 그래요', icon: '⛅', color: 'bg-teal-400' },
-                { value: 3, label: '보통이에요', icon: '☀️', color: 'bg-green-400' },
-                { value: 4, label: '기분 좋아요', icon: '🌈', color: 'bg-orange-400' },
-                { value: 5, label: '최고예요!', icon: '🔥', color: 'bg-red-400' }
-            ];
-            const handleSubmit = async () => {
-                playSelect();
-                const { error } = await supabaseClient.from('morning_checkin').insert([{ user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, temp, missions: missions.filter(m => m.checked).map(m => m.text) }]);
-                if(!error) { playSuccess(); alert('체크인 완료!'); onBack(); } else { alert('오류 발생'); }
-            };
-            return (
-                <main className="flex-grow flex flex-col items-center p-6 fade-in w-full max-w-4xl mx-auto">
-                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 dark:text-gray-500 font-bold mb-4">← 뒤로</button>
-                    {step === 1 ? (
-                        <div className="text-center space-y-10 w-full">
-                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">마음 온도는?</h2>
-                            <div className="flex justify-between items-end h-64 gap-2 pt-10">
-                                {emotions.map(e => (
-                                    <div key={e.value} onClick={() => { playSelect(); setTemp(e.value); }} className="flex-1 flex flex-col items-center cursor-pointer">
-                                        <div className={`mb-4 text-4xl md:text-6xl transition-all ${temp === e.value ? 'scale-125 opacity-100' : 'opacity-30 scale-90'}`}>{e.icon}</div>
-                                        <div className={`w-full rounded-2xl transition-all duration-500 ${temp === e.value ? e.color : 'bg-gray-100 dark:bg-gray-800'}`} style={{ height: `${e.value * 20}%` }}></div>
-                                        <span className={`mt-4 text-xs font-black ${temp === e.value ? 'text-gray-800 dark:text-gray-200' : 'text-gray-300 dark:text-gray-600'}`}>{e.label}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <button onClick={() => { playSelect(); setStep(2); }} className="w-full py-4 rounded-3xl bg-blue-500 text-white font-black text-xl mt-10 shadow-lg">다음으로</button>
-                        </div>
-                    ) : (
-                        <div className="space-y-6 w-full">
-                            <h2 className="text-3xl font-bold title-font text-center text-nowrap dark:text-gray-100">아침 미션! ✅</h2>
-                            {missions.map(m => (
-                                <div key={m.id} onClick={() => { playSelect(); setMissions(missions.map(x => x.id === m.id ? {...x, checked: !x.checked} : x)); }} className={`p-5 rounded-2xl border-4 ${m.checked ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800'} cursor-pointer font-bold text-xl text-nowrap dark:text-gray-200`}>{m.checked ? '✅' : '⬜'} {m.text}</div>
-                            ))}
-                            <button onClick={handleSubmit} className="w-full py-4 rounded-3xl bg-orange-500 text-white font-black text-xl shadow-lg">완료 ✨</button>
-                        </div>
-                    )}
-                </main>
-            );
-        };
-
-        const ClassOn = ({ onBack, userInfo }) => {
-            const [step, setStep] = useState(1);
-            const [period, setPeriod] = useState('');
-            const [subject, setSubject] = useState('');
-            const [goal, setGoal] = useState('');
-            const [learner, setLearner] = useState(null);
-            const [emotion, setEmotion] = useState(null);
-
-            const isNeulpum = userInfo.userClass.includes('늘품');
-            const subjects = isNeulpum 
-                ? ['국어', '수학', '사회', '진로와직업', '언어치료']
-                : ['국어', '수학', '사회', '과학', '영어', '역사', '도덕', '체육', '진탐', '진로와직업', '스포츠클럽', '창체', '음악', '미술', '기술가정', '보건'];
-
-            const LEARNERS = [
-                { icon:"🔍", name:"탐구하는 사람" }, { icon:"📚", name:"지식이 풍부한 사람" },
-                { icon:"💭", name:"생각하는 사람" }, { icon:"💬", name:"소통하는 사람" },
-                { icon:"🛡️", name:"원칙을 지키는 사람" }, { icon:"🌍", name:"열린 마음을 가진 사람" },
-                { icon:"❤️", name:"배려하는 사람" }, { icon:"🎯", name:"도전하는 사람" },
-                { icon:"⚖️", name:"균형 잡힌 사람" }, { icon:"🪞", name:"성찰하는 사람" }
-            ];
-
-            const EMOTIONS = [
-                { level:1, icon:"😌", name:"차분해요" }, { level:2, icon:"😊", name:"기분 좋아요" },
-                { level:3, icon:"😐", name:"보통이에요" }, { level:4, icon:"😤", name:"불편해요" },
-                { level:5, icon:"😡", name:"많이 힘들어요" }
-            ];
-
-            const handleFinish = async () => {
-                playSelect();
-                let finalSubject = `[${period}/${subject}] ${goal}`;
-                if (isNeulpum) {
-                    finalSubject = `[${period}/${subject}] ${learner.icon}${learner.name} | ${emotion.icon}${emotion.name}`;
-                }
-
-                const { error } = await supabaseClient.from('class_preparation').insert([{ 
-                    user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, subject: finalSubject
-                }]);
-                if(!error) { playSuccess(); alert('준비 완료! 오늘도 즐겁게 배워봐요! 🌟'); onBack(); } else { alert('오류 발생'); }
-            };
-
-            return (
-                <main className="flex-grow flex flex-col items-center p-6 fade-in w-full max-w-4xl mx-auto">
-                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 dark:text-gray-500 font-bold mb-4">← 뒤로</button>
-                    
-                    {step === 1 && (
-                        <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">지금은 몇 교시인가요?</h2>
-                            <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
-                                {[1, 2, 3, 4, 5, 6, 7].map(p => (
-                                    <div key={p} onClick={() => { playSelect(); setPeriod(`${p}교시`); }} className={`p-4 rounded-2xl border-4 text-center font-black text-lg cursor-pointer ${period === `${p}교시` ? 'bg-pink-500 text-white border-pink-200' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>{p}</div>
-                                ))}
-                            </div>
-                            {period && <button onClick={() => { playSelect(); setStep(2); }} className="w-full py-4 rounded-3xl bg-pink-500 text-white font-black text-xl mt-8 shadow-lg">다음으로</button>}
-                        </div>
-                    )}
-
-                    {step === 2 && (
-                        <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">어떤 수업인가요? ({period})</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full overflow-y-auto max-h-[50vh] p-2 no-scrollbar">
-                                {subjects.map(s => (
-                                    <div key={s} onClick={() => { playSelect(); setSubject(s); }} className={`p-6 rounded-3xl border-4 text-center font-black text-xl cursor-pointer ${subject === s ? 'bg-pink-500 text-white border-pink-200' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>{s}</div>
-                                ))}
-                            </div>
-                            <div className="flex gap-4">
-                                <button onClick={() => { playSelect(); setStep(1); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
-                                {subject && <button onClick={() => { playSelect(); setStep(3); }} className="flex-[2] py-4 rounded-3xl bg-pink-500 text-white font-black text-xl shadow-lg">다음으로</button>}
-                            </div>
-                        </div>
-                    )}
-
-                    {step === 3 && !isNeulpum && (
-                        <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">이번 시간 나의 목표는 무엇인가요? ✏️</h2>
-                            <p className="text-sm text-gray-500 font-bold">({period} {subject})</p>
-                            <textarea value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="" className="w-full h-40 p-6 rounded-[30px] border-4 border-pink-50 dark:border-gray-800 outline-none text-lg focus:border-pink-200 dark:focus:border-pink-900 bg-white dark:bg-gray-900 dark:text-gray-100 transition-all shadow-inner" />
-                            <div className="flex gap-4">
-                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
-                                <button disabled={!goal.trim()} onClick={handleFinish} className={`flex-[2] py-4 rounded-3xl font-black text-xl text-white ${goal.trim() ? 'bg-pink-500 shadow-lg' : 'bg-gray-200 dark:bg-gray-800'}`}>준비 완료! 🚀</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {step === 3 && isNeulpum && (
-                        <div className="w-full text-center space-y-8">
-                            <h2 className="text-2xl md:text-3xl font-bold title-font dark:text-gray-100">나는 어떤 모습으로 배울까요? 🌟</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 overflow-y-auto max-h-[50vh] p-2 no-scrollbar">
-                                {LEARNERS.map(l => (
-                                    <div key={l.name} onClick={() => { playSelect(); setLearner(l); }} className={`p-4 rounded-2xl border-4 flex flex-col items-center gap-2 cursor-pointer transition-all ${learner?.name === l.name ? 'bg-purple-500 text-white border-purple-200 scale-105 shadow-md' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>
-                                        <span className="text-3xl">{l.icon}</span>
-                                        <span className="text-[10px] md:text-xs font-bold leading-tight break-keep">{l.name}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="flex gap-4 pt-4">
-                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
-                                {learner && <button onClick={() => { playSelect(); setStep(4); }} className="flex-[2] py-4 rounded-3xl bg-purple-600 text-white font-black text-xl shadow-lg">다음으로</button>}
-                            </div>
-                        </div>
-                    )}
-
-                    {step === 4 && isNeulpum && (
-                        <div className="w-full text-center space-y-8">
-                            <h2 className="text-2xl md:text-3xl font-bold title-font dark:text-gray-100">지금 내 기분은 몇 도인가요? 🌡️</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                {EMOTIONS.map(e => (
-                                    <div key={e.level} onClick={() => { playSelect(); setEmotion(e); }} className={`p-6 rounded-3xl border-4 flex flex-col items-center gap-3 cursor-pointer transition-all ${emotion?.level === e.level ? 'bg-orange-500 text-white border-orange-200 scale-105 shadow-md' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>
-                                        <span className="text-5xl">{e.icon}</span>
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-black">{e.level}도</span>
-                                            <span className="text-xs font-bold opacity-80">{e.name}</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="flex gap-4 pt-8">
-                                <button onClick={() => { playSelect(); setStep(3); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
-                                {emotion && <button onClick={handleFinish} className="flex-[2] py-4 rounded-3xl bg-orange-600 text-white font-black text-xl shadow-lg">준비 완료! 🚀</button>}
-                            </div>
-                        </div>
-                    )}
-                </main>
-            );
-        };
-
-        const ReflectOn = ({ onBack, userInfo }) => {
-            const [step, setStep] = useState(1);
-            const [period, setPeriod] = useState('');
-            const [subject, setSubject] = useState('');
-            const [rating, setRating] = useState(0);
-            const [reflection, setReflection] = useState('');
-            
-            const isNeulpum = userInfo.userClass.includes('늘품');
-            const subjects = isNeulpum 
-                ? ['국어', '수학', '사회', '진로와직업', '언어치료']
-                : ['국어', '수학', '사회', '과학', '영어', '역사', '도덕', '체육', '진탐', '진로와직업', '스포츠클럽', '창체', '음악', '미술', '기술가정', '보건'];
-
-            const handleFinish = async () => {
-                playSelect();
-                const { error } = await supabaseClient.from('reflect_record').insert([
-                    { user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, rating, reflection: `[${period}/${subject}] ${reflection}` }
-                ]);
-                if(!error) { playSuccess(); alert('성찰 완료!'); onBack(); } else { alert('오류 발생: ' + error.message); }
-            };
-
-            return (
-                <main className="flex-grow flex flex-col items-center p-6 fade-in w-full max-w-4xl mx-auto">
-                    <button onClick={() => { playSelect(); onBack(); }} className="self-start text-gray-400 dark:text-gray-500 font-bold mb-4">← 뒤로</button>
-                    {step === 1 && (
-                        <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">몇 교시 수업을 성찰할까요?</h2>
-                            <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
-                                {[1, 2, 3, 4, 5, 6, 7].map(p => (
-                                    <div key={p} onClick={() => { playSelect(); setPeriod(`${p}교시`); }} className={`p-4 rounded-2xl border-4 text-center font-black text-lg cursor-pointer ${period === `${p}교시` ? 'bg-green-500 text-white border-green-200' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>{p}</div>
-                                ))}
-                            </div>
-                            {period && <button onClick={() => { playSelect(); setStep(2); }} className="w-full py-4 rounded-3xl bg-green-500 text-white font-black text-xl mt-8 shadow-lg">다음으로</button>}
-                        </div>
-                    )}
-                    {step === 2 && (
-                        <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">어떤 수업인가요? ({period})</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 overflow-y-auto max-h-[40vh] p-2 no-scrollbar">
-                                {subjects.map(s => (
-                                    <div key={s} onClick={() => { playSelect(); setSubject(s); }} className={`p-6 rounded-3xl border-4 text-center font-black text-xl cursor-pointer ${subject === s ? 'bg-green-500 text-white border-green-200' : 'bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800 dark:text-gray-200'}`}>{s}</div>
-                                ))}
-                            </div>
-                            <div className="flex gap-4">
-                                <button onClick={() => { playSelect(); setStep(1); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
-                                {subject && <button onClick={() => { playSelect(); setStep(3); }} className="flex-[2] py-4 rounded-3xl bg-green-500 text-white font-black text-xl shadow-lg">다음으로</button>}
-                            </div>
-                        </div>
-                    )}
-                    {step === 3 && (
-                        <div className="w-full text-center space-y-8">
-                            <h2 className="text-3xl font-bold title-font dark:text-gray-100">수업은 어땠나요? ({period} {subject})</h2>
-                            <div className="flex justify-center gap-2 mb-6">
-                                {[1, 2, 3, 4, 5].map(s => (
-                                    <button key={s} onClick={() => { playSelect(); setRating(s); }} className={`text-5xl ${rating >= s ? 'text-yellow-400' : 'text-gray-200 dark:text-gray-700'}`}>★</button>
-                                ))}
-                            </div>
-                            <textarea value={reflection} onChange={(e) => setReflection(e.target.value)} placeholder="오늘의 배움을 기록해봐요." className="w-full h-40 p-6 rounded-3xl border-4 border-green-50 dark:border-gray-800 outline-none text-lg bg-white dark:bg-gray-900 dark:text-gray-100" />
-                            <div className="flex gap-4">
-                                <button onClick={() => { playSelect(); setStep(2); }} className="flex-1 py-4 rounded-3xl bg-gray-100 dark:bg-gray-800 dark:text-gray-200 font-bold">이전</button>
-                                <button disabled={!rating || !reflection} onClick={handleFinish} className={`flex-[2] py-4 rounded-3xl font-black text-xl text-white ${rating && reflection ? 'bg-green-500 shadow-lg' : 'bg-gray-200 dark:bg-gray-800'}`}>성찰 완료 ✨</button>
-                            </div>
-                        </div>
-                    )}
-                </main>
-            );
-        };
+        const SUBJECTS = ['국어', '수학', '사회', '과학', '영어', '역사', '도덕', '체육', '음악', '미술', '보건', '진로와직업', '기술가정'];
+        const NEULPUM_SUBJECTS = ['국어', '수학', '사회', '진로와직업', '언어치료'];
+        const PERIODS = ['1교시', '2교시', '3교시', '4교시', '5교시', '6교시', '7교시'];
+        const IB_PROFILES = [
+            { id: 'inquirer', name: '지식 탐구자', icon: '🔍' },
+            { id: 'knowledgeable', name: '지식 있는 사람', icon: '📚' },
+            { id: 'thinker', name: '생각하는 사람', icon: '💡' },
+            { id: 'communicator', name: '소통하는 사람', icon: '🗣️' },
+            { id: 'principled', name: '원칙을 지키는 사람', icon: '⚖️' },
+            { id: 'open-minded', name: '열린 마음을 가진 사람', icon: '🌍' },
+            { id: 'caring', name: '배려하는 사람', icon: '❤️' },
+            { id: 'risk-taker', name: '도전하는 사람', icon: '🚀' },
+            { id: 'balanced', name: '균형 있는 사람', icon: '⚖️' },
+            { id: 'reflective', name: '성찰하는 사람', icon: '🧘' }
+        ];
 
         const App = () => {
             const [view, setView] = useState('intro');
-            const [userInfo, setUserInfo] = useState(null);
-            const [sessionStartTime, setSessionStartTime] = useState(null);
-            const [darkMode, setDarkMode] = useState(localStorage.getItem('ion_dark_mode') === 'true');
+            const [userInfo, setUserInfo] = useState(JSON.parse(localStorage.getItem('ion_user')));
+            const [darkMode, setDarkMode] = useState(localStorage.getItem('ion_dark') === 'true');
+            const [showRecords, setShowRecords] = useState(false);
+            const [records, setRecords] = useState([]);
+
+            const isNeulpum = userInfo?.userClass?.includes('늘품');
+            const currentSubjects = isNeulpum ? NEULPUM_SUBJECTS : SUBJECTS;
 
             useEffect(() => {
-                const saved = localStorage.getItem('ion_student_session');
-                if (saved) {
-                    const { info, timestamp } = JSON.parse(saved);
-                    if (Date.now() - timestamp < SESSION_TIMEOUT_MS) {
-                        setUserInfo(info); setSessionStartTime(timestamp); setView('landing');
-                    } else { localStorage.removeItem('ion_student_session'); }
-                }
-            }, []);
-
-            useEffect(() => {
-                if (darkMode) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-                localStorage.setItem('ion_dark_mode', darkMode);
+                document.documentElement.classList.toggle('dark', darkMode);
+                localStorage.setItem('ion_dark', darkMode);
             }, [darkMode]);
 
-            const handleStart = (info) => {
-                const now = Date.now();
-                localStorage.setItem('ion_student_session', JSON.stringify({ info, timestamp: now }));
-                setUserInfo(info); setSessionStartTime(now); setView('landing');
+            useEffect(() => {
+                if (userInfo) setView('main');
+            }, []);
+
+            const handleLogin = (data) => {
+                const info = { userName: data.user_name, userClass: data.user_class, userNumber: data.user_number };
+                setUserInfo(info);
+                localStorage.setItem('ion_user', JSON.stringify(info));
+                setView('main');
             };
+
             const handleLogout = () => {
-                localStorage.removeItem('ion_student_session');
-                setUserInfo(null); setSessionStartTime(null); setView('intro');
+                localStorage.removeItem('ion_user');
+                setUserInfo(null);
+                setView('intro');
             };
-            return (
-                <div className="flex flex-col min-h-screen dark:bg-[#1a1a1a]">
-                    <Header userInfo={userInfo} onLogout={handleLogout} sessionStartTime={sessionStartTime} darkMode={darkMode} toggleDarkMode={() => setDarkMode(!darkMode)} />
-                    <div className="flex-grow flex flex-col items-center">
-                        {view === 'intro' && <IntroPage onStart={handleStart} />}
-                        {view === 'landing' && <LandingPage onSelectView={setView} userInfo={userInfo} />}
-                        {view === 'morning' && <MorningOn onBack={() => setView('landing')} userInfo={userInfo} />}
-                        {view === 'class' && <ClassOn onBack={() => setView('landing')} userInfo={userInfo} />}
-                        {view === 'reflect' && <ReflectOn onBack={() => setView('landing')} userInfo={userInfo} />}
+
+            const fetchRecords = async () => {
+                if(!userInfo) return;
+                const { data } = await supabaseClient.from('reflect_record').select('*').eq('user_name', userInfo.userName).order('created_at', { ascending: false });
+                setRecords(data || []);
+                setShowRecords(true);
+            };
+
+            const Header = () => (
+                <header className="p-6 md:p-10 flex justify-between items-center sticky top-0 z-40 w-full max-w-5xl mx-auto">
+                    <div className="flex items-center gap-3">
+                        <img src="logo.png" alt="로고" className="w-12 h-12 object-contain" />
+                        <div>
+                            <h1 className="text-xl font-black tracking-tighter dark:text-white uppercase italic">I-ON</h1>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">마음을 켜고(ON), 따뜻한(溫) 교실</p>
+                        </div>
                     </div>
-                    <footer className="p-8 text-center text-gray-400 dark:text-gray-600 text-sm">© 2026 I-ON | 산양중학교</footer>
+                    <div className="flex items-center gap-3">
+                        {userInfo && <button onClick={fetchRecords} className="px-4 py-2 rounded-2xl glass text-xs font-black">기록 📖</button>}
+                        <button onClick={() => setDarkMode(!darkMode)} className="w-10 h-10 rounded-2xl glass flex items-center justify-center text-lg">{darkMode ? '☀️' : '🌙'}</button>
+                    </div>
+                </header>
+            );
+
+            const Intro = () => {
+                const [form, setForm] = useState({ grade: '', classNum: '', num: '', name: '', pin: '' });
+                const [loading, setLoading] = useState(false);
+                return (
+                    <div className="flex-grow flex flex-col items-center justify-center p-6 space-y-10 animate-in fade-in zoom-in">
+                        <div className="text-center space-y-2">
+                            <h2 className="text-5xl font-black title-font text-brand-500">반가워요!</h2>
+                            <p className="text-gray-400 font-medium italic">본인의 정보를 입력하여 접속해 주세요.</p>
+                        </div>
+                        <div className="w-full max-w-sm space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                                <select onChange={e=>setForm({...form, grade:e.target.value})} className="p-4 rounded-3xl glass outline-none font-bold text-center">
+                                    <option value="">학년</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
+                                </select>
+                                <select onChange={e=>setForm({...form, classNum:e.target.value})} className="p-4 rounded-3xl glass outline-none font-bold text-center">
+                                    <option value="">반</option><option value="1">1반</option><option value="2">2반</option><option value="늘품">늘품반</option>
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
+                                <input type="number" placeholder="번호" value={form.num} onChange={e=>setForm({...form, num:e.target.value})} className="col-span-1 p-4 rounded-3xl glass outline-none font-bold text-center" />
+                                <input type="text" placeholder="이름 입력" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} className="col-span-2 p-4 rounded-3xl glass outline-none font-bold text-center" />
+                            </div>
+                            <input type="password" placeholder="PIN 번호 (4자리)" value={form.pin} onChange={e=>setForm({...form, pin:e.target.value})} className="w-full p-5 rounded-3xl glass outline-none font-bold text-center text-2xl tracking-[0.5em]" />
+                            <button onClick={async () => {
+                                if(!form.grade || !form.classNum || !form.num || !form.name || !form.pin) return alert('모든 정보를 입력해주세요.');
+                                setLoading(true);
+                                const userClass = `${form.grade}-${form.classNum}`;
+                                const { data, error } = await supabaseClient
+                                    .from('student_info')
+                                    .select('*')
+                                    .eq('user_class', userClass)
+                                    .eq('user_number', form.num)
+                                    .eq('user_name', form.name)
+                                    .eq('pin', form.pin)
+                                    .single();
+                                
+                                if(data) handleLogin(data);
+                                else alert('정보가 일치하는 학생이 없습니다.');
+                                setLoading(false);
+                            }} className="w-full py-5 rounded-[2.5rem] bg-brand-500 text-white font-black text-xl shadow-xl shadow-orange-100 dark:shadow-none hover:bg-brand-600 transition-all">
+                                {loading ? '인증 중...' : '입장하기 🚀'}
+                            </button>
+                        </div>
+                    </div>
+                );
+            };
+
+            const Main = () => (
+                <div className="flex-grow flex flex-col items-center justify-center p-6 w-full max-w-5xl mx-auto space-y-12 animate-in fade-in">
+                    <div className="w-full text-left px-4">
+                        <p className="text-brand-500 font-black mb-1">{userInfo.userClass} {userInfo.userNumber}번</p>
+                        <h2 className="text-4xl font-black dark:text-white leading-tight">{userInfo.userName} 학생, 반가워요!<br/>오늘의 아이-온을 시작해볼까요?</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                        {[
+                            { id: 'morning', title: 'Morning ON', sub: '아침 체크인', icon: '🌅', color: 'bg-blue-500' },
+                            { id: 'class', title: 'Class ON', sub: '수업 준비', icon: '🎒', color: 'bg-teal-500' },
+                            { id: 'reflect', title: 'Reflect ON', sub: '배움 성찰', icon: '✨', color: 'bg-purple-500' },
+                            { id: 'heart', title: 'HEART ON', sub: '마음의 편지', icon: '❤️', color: 'bg-red-500' }
+                        ].map(m => (
+                            <div key={m.id} onClick={()=>setView(m.id)} className="bento-card group glass p-10 rounded-[3rem] flex flex-col items-center text-center space-y-4 hover:border-brand-500 border-2 border-transparent">
+                                <div className={`w-20 h-20 ${m.color} rounded-3xl flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition-transform`}>{m.icon}</div>
+                                <div><h3 className="text-xl font-black dark:text-white">{m.title}</h3><p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{m.sub}</p></div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="pt-10 flex flex-col items-center gap-6">
+                        <button onClick={handleLogout} className="px-10 py-3 rounded-full glass border-2 border-orange-100 dark:border-white/5 text-gray-400 hover:text-red-500 hover:border-red-100 transition-all font-black text-xs flex items-center gap-2 group">
+                            <span>로그아웃</span>
+                            <span className="group-hover:translate-x-1 transition-transform">🚪</span>
+                        </button>
+                        <footer className="text-center text-[10px] font-black text-gray-300 dark:text-gray-800 uppercase tracking-[0.5em]">© 2026 I-ON | Sanyang Middle School</footer>
+                    </div>
+                </div>
+            );
+
+            const MorningOn = () => {
+                const [temp, setTemp] = useState(3);
+                const [step, setStep] = useState(1);
+                const [missions, setMissions] = useState([]);
+                const missionList = [
+                    '선생님과 친구에게 반갑게 인사하기 🤝',
+                    '스마트폰 및 스마트 기기 제출하기 📱',
+                    '우리반 아침활동 준비하기 📖'
+                ];
+
+                const toggleMission = (m) => {
+                    setMissions(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m]);
+                };
+
+                return (
+                    <div className="flex-grow w-full max-w-2xl mx-auto p-6 flex flex-col justify-center animate-in slide-in-from-bottom-10">
+                        <button onClick={()=>setView('main')} className="mb-10 text-gray-400 font-bold">← 돌아가기</button>
+                        
+                        {step === 1 ? (
+                            <div className="glass rounded-[4rem] p-10 md:p-16 space-y-12 text-center border-t-8 border-blue-500 animate-in fade-in">
+                                <div className="space-y-2">
+                                    <h2 className="text-3xl font-black dark:text-white italic uppercase tracking-tighter">Step 01</h2>
+                                    <h3 className="text-2xl font-bold text-gray-400">지금 나의 마음 온도는?</h3>
+                                </div>
+                                <div className="flex justify-between items-center h-32 px-4">
+                                    {[1,2,3,4,5].map(t => (
+                                        <button key={t} onClick={()=>setTemp(t)} className={`flex flex-col items-center transition-all ${temp === t ? 'scale-125 opacity-100' : 'opacity-30 blur-[1px]'}`}>
+                                            <span className="text-6xl">{['☁️','⛅','☀️','🌈','🔥'][t-1]}</span>
+                                            <span className={`text-xs font-black mt-2 ${temp===t?'text-blue-500':''}`}>{t}도</span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-3xl font-bold text-blue-600 dark:text-blue-300">
+                                    {['조금 힘들어요. 도움이 필요해요.', '그저 그래요. 힘을 내고 싶어요.', '평범한 아침이에요. 잘 지낼 수 있어요.', '오늘 기분이 좋아요! 신나요.', '최고의 기분이에요! 무엇이든 가능해요!'][temp-1]}
+                                </div>
+                                <button onClick={()=>setStep(2)} className="w-full py-5 rounded-[2.5rem] bg-blue-500 text-white font-black text-xl shadow-lg hover:bg-blue-600 transition-all">다음으로 ➔</button>
+                            </div>
+                        ) : (
+                            <div className="glass rounded-[4rem] p-10 md:p-16 space-y-10 border-t-8 border-orange-500 animate-in slide-in-from-right-10">
+                                <div className="space-y-2 text-center">
+                                    <h2 className="text-3xl font-black dark:text-white italic uppercase tracking-tighter">Step 02</h2>
+                                    <h3 className="text-2xl font-bold text-gray-400">아침 미션을 완료했나요?</h3>
+                                </div>
+                                <div className="space-y-4">
+                                    {missionList.map((m, i) => (
+                                        <div key={i} onClick={()=>toggleMission(m)} className={`p-6 rounded-[2rem] glass border-2 transition-all cursor-pointer flex items-center gap-4 ${missions.includes(m) ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-900/20' : 'border-transparent opacity-60'}`}>
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black ${missions.includes(m) ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-400'}`}>
+                                                {missions.includes(m) ? '✓' : ''}
+                                            </div>
+                                            <span className={`font-bold ${missions.includes(m) ? 'text-orange-600 dark:text-orange-400' : 'text-gray-500'}`}>{m}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="flex gap-4">
+                                    <button onClick={()=>setStep(1)} className="flex-1 py-5 rounded-[2.5rem] glass font-black text-gray-400">이전으로</button>
+                                    <button onClick={async () => {
+                                        const { error } = await supabaseClient.from('morning_checkin').insert([{ 
+                                            user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, 
+                                            temp, missions 
+                                        }]);
+                                        if(!error) { alert('미션 완료! 오늘도 멋진 하루 보내세요.'); setView('main'); }
+                                    }} className="flex-[2] py-5 rounded-[2.5rem] bg-orange-500 text-white font-black text-xl shadow-lg hover:bg-orange-600 transition-all">체크인 완료 ✨</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            const ClassOn = () => {
+                const [form, setForm] = useState({ period: '', subject: '', goal: '' });
+                return (
+                    <div className="flex-grow w-full max-w-2xl mx-auto p-6 flex flex-col justify-center animate-in slide-in-from-bottom-10">
+                        <button onClick={()=>setView('main')} className="mb-10 text-gray-400 font-bold">← 돌아가기</button>
+                        <div className="glass rounded-[4rem] p-10 md:p-16 space-y-8 border-t-8 border-teal-500">
+                            <h2 className="text-3xl font-black dark:text-white text-center text-nowrap">수업 준비를 마쳤나요?</h2>
+                            <div className="grid grid-cols-2 gap-4">
+                                <select onChange={e=>setForm({...form, period:e.target.value})} className="p-5 rounded-3xl glass font-bold outline-none">
+                                    <option value="">교시 선택</option>{PERIODS.map(p=><option key={p} value={p}>{p}</option>)}
+                                </select>
+                                <select onChange={e=>setForm({...form, subject:e.target.value})} className="p-5 rounded-3xl glass font-bold outline-none">
+                                    <option value="">과목 선택</option>{currentSubjects.map(s=><option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                            {isNeulpum ? (
+                                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                    {IB_PROFILES.map(p => (
+                                        <button 
+                                            key={p.id} 
+                                            onClick={() => setForm({...form, goal: p.name})}
+                                            className={`p-4 rounded-3xl glass flex flex-col items-center justify-center gap-2 transition-all ${form.goal === p.name ? 'ring-4 ring-brand-500 bg-brand-50 shadow-lg scale-105' : 'hover:bg-white opacity-70'}`}
+                                        >
+                                            <span className="text-3xl">{p.icon}</span>
+                                            <span className="text-[10px] font-black break-keep">{p.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : (
+                                <textarea 
+                                    placeholder="오늘의 배움 목표를 적어보세요." 
+                                    value={form.goal} 
+                                    onChange={e=>setForm({...form, goal:e.target.value})} 
+                                    className="w-full h-40 p-8 rounded-[3rem] glass outline-none font-medium text-lg" 
+                                />
+                            )}
+                            <button onClick={async () => {
+                                if(!form.period || !form.subject) return alert('교시와 과목을 선택하세요.');
+                                const { error } = await supabaseClient.from('class_preparation').insert([{ 
+                                    user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, 
+                                    period: form.period, subject_name: form.subject, goal: form.goal 
+                                }]);
+                                if(!error) { alert('준비 완료! 멋진 배움 기대할게요.'); setView('main'); }
+                            }} className="w-full py-5 rounded-[2.5rem] bg-teal-500 text-white font-black text-xl shadow-lg">준비 마침 🎒</button>
+                        </div>
+                    </div>
+                );
+            };
+
+            const ReflectOn = () => {
+                const [form, setForm] = useState({ period: '', subject: '', rating: 5, content: '' });
+                return (
+                    <div className="flex-grow w-full max-w-2xl mx-auto p-6 flex flex-col justify-center animate-in slide-in-from-bottom-10">
+                        <button onClick={()=>setView('main')} className="mb-10 text-gray-400 font-bold">← 돌아가기</button>
+                        <div className="glass rounded-[4rem] p-10 md:p-16 space-y-8 border-t-8 border-purple-500">
+                            <h2 className="text-3xl font-black dark:text-white text-center text-nowrap">오늘의 배움은 어땠나요?</h2>
+                            <div className="grid grid-cols-2 gap-4">
+                                <select onChange={e=>setForm({...form, period:e.target.value})} className="p-5 rounded-3xl glass font-bold outline-none">
+                                    <option value="">교시 선택</option>{PERIODS.map(p=><option key={p} value={p}>{p}</option>)}
+                                </select>
+                                <select onChange={e=>setForm({...form, subject:e.target.value})} className="p-5 rounded-3xl glass font-bold outline-none">
+                                    <option value="">과목 선택</option>{currentSubjects.map(s=><option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                            <div className="flex justify-center gap-2 text-4xl">
+                                {[1,2,3,4,5].map(r => (
+                                    <button key={r} onClick={()=>setForm({...form, rating:r})} className={`transition-all ${form.rating >= r ? 'text-yellow-400 scale-110' : 'text-gray-200'}`}>★</button>
+                                ))}
+                            </div>
+                            <textarea placeholder="배운 내용이나 느낀 점을 한 줄로 남겨보세요." value={form.content} onChange={e=>setForm({...form, content:e.target.value})} className="w-full h-40 p-8 rounded-[3rem] glass outline-none font-medium text-lg" />
+                            <button onClick={async () => {
+                                if(!form.period || !form.subject) return alert('교시와 과목을 선택하세요.');
+                                const { error } = await supabaseClient.from('reflect_record').insert([{ 
+                                    user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, 
+                                    period: form.period, subject: form.subject, rating: form.rating, content: form.content,
+                                    reflection: `[${form.period}/${form.subject}] ${form.content}`
+                                }]);
+                                if(!error) { alert('성찰 완료! 소중한 기록이 저장되었습니다.'); setView('main'); }
+                            }} className="w-full py-5 rounded-[2.5rem] bg-purple-500 text-white font-black text-xl shadow-lg">성찰 기록하기 ✨</button>
+                        </div>
+                    </div>
+                );
+            };
+
+            const HeartOn = () => {
+                const [msg, setMsg] = useState('');
+                return (
+                    <div className="flex-grow w-full max-w-2xl mx-auto p-6 flex flex-col justify-center animate-in slide-in-from-bottom-10">
+                        <button onClick={()=>setView('main')} className="mb-10 text-gray-400 font-bold">← 돌아가기</button>
+                        <div className="glass rounded-[4rem] p-10 md:p-16 space-y-8 text-center border-t-8 border-red-500">
+                            <h2 className="text-4xl font-black title-font text-red-500">HEART ON ❤️</h2>
+                            <p className="text-gray-400 font-medium">선생님께만 전하고 싶은<br/>나의 소중한 이야기를 적어주세요.</p>
+                            <textarea value={msg} onChange={e=>setMsg(e.target.value)} placeholder="이곳에 적는 내용은 선생님만 볼 수 있어요." className="w-full h-60 p-8 rounded-[3rem] glass outline-none text-lg font-medium shadow-inner" />
+                            <button onClick={async () => {
+                                if(!msg.trim()) return;
+                                const { error } = await supabaseClient.from('heart_on').insert([{ user_class: userInfo.userClass, user_name: userInfo.userName, content: msg }]);
+                                if(!error) { alert('선생님께 마음이 전달되었습니다.'); setView('main'); }
+                            }} className="w-full py-5 rounded-[2.5rem] bg-red-500 text-white font-black text-xl shadow-lg">편지 보내기 💌</button>
+                        </div>
+                    </div>
+                );
+            };
+
+            const MyRecords = () => (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in">
+                    <div className="w-full max-w-lg glass rounded-[3rem] max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
+                        <div className="p-8 border-b dark:border-white/5 flex justify-between items-center">
+                            <h2 className="text-2xl font-black dark:text-white">나의 기록 📖</h2>
+                            <button onClick={()=>setShowRecords(false)} className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center font-bold">×</button>
+                        </div>
+                        <div className="flex-grow overflow-y-auto p-6 space-y-4 no-scrollbar">
+                            {records.length === 0 ? <div className="text-center py-20 text-gray-400 font-bold text-lg">아직 성찰 기록이 없어요.</div> : records.map(r => (
+                                <div key={r.id} className="p-6 rounded-3xl bg-white dark:bg-white/5 border border-white/20">
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-[10px] font-black text-brand-500 uppercase">
+                                            {new Date(r.created_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
+                                        </span>
+                                        <span className="text-yellow-400 text-xs">{'★'.repeat(r.rating)}</span>
+                                    </div>
+                                    <p className="font-bold mb-1 dark:text-white">[{r.period || '-'} / {r.subject || '-'}]</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">"{r.content || r.reflection}"</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <Header />
+                    {showRecords && <MyRecords />}
+                    {view === 'intro' && <Intro />}
+                    {view === 'main' && <Main />}
+                    {view === 'morning' && <MorningOn />}
+                    {view === 'class' && <ClassOn />}
+                    {view === 'reflect' && <ReflectOn />}
+                    {view === 'heart' && <HeartOn />}
+                    <footer className="p-10 text-center text-[10px] font-black text-gray-300 dark:text-gray-800 uppercase tracking-[0.5em]">© 2026 I-ON | Sanyang Middle School</footer>
                 </div>
             );
         };
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
