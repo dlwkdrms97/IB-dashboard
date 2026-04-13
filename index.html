@@ -45,6 +45,7 @@
 
         const SUBJECTS = ['국어', '수학', '사회', '과학', '영어', '역사', '도덕', '체육', '음악', '미술', '보건', '진로와직업', '기술가정'];
         const NEULPUM_SUBJECTS = ['국어', '수학', '사회', '진로와직업', '언어치료'];
+        const MATH_NURI_SUBJECTS = ['수학'];
         const PERIODS = ['1교시', '2교시', '3교시', '4교시', '5교시', '6교시', '7교시'];
         const IB_PROFILES = [
             { id: 'inquirer', name: '지식 탐구자', icon: '🔍' },
@@ -75,7 +76,8 @@
             const [sessionDate, setSessionDate] = useState(getLocalDate());
 
             const isNeulpum = userInfo?.userClass?.includes('늘품');
-            const currentSubjects = isNeulpum ? NEULPUM_SUBJECTS : SUBJECTS;
+            const isMathNuri = userInfo?.userClass?.includes('수학누리');
+            const currentSubjects = isNeulpum ? NEULPUM_SUBJECTS : (isMathNuri ? MATH_NURI_SUBJECTS : SUBJECTS);
 
             useEffect(() => {
                 document.documentElement.classList.toggle('dark', darkMode);
@@ -136,11 +138,15 @@
                         </div>
                         <div className="w-full max-w-sm space-y-4">
                             <div className="grid grid-cols-2 gap-3">
-                                <select onChange={e=>setForm({...form, grade:e.target.value})} className="p-4 rounded-3xl glass outline-none font-bold text-center">
-                                    <option value="">학년</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
-                                </select>
+                                {form.classNum !== '수학누리' ? (
+                                    <select onChange={e=>setForm({...form, grade:e.target.value})} className="p-4 rounded-3xl glass outline-none font-bold text-center">
+                                        <option value="">학년</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
+                                    </select>
+                                ) : (
+                                    <div className="p-4 rounded-3xl glass font-bold text-center text-gray-400 opacity-50 select-none">학년 없음</div>
+                                )}
                                 <select onChange={e=>setForm({...form, classNum:e.target.value})} className="p-4 rounded-3xl glass outline-none font-bold text-center">
-                                    <option value="">반</option><option value="1">1반</option><option value="2">2반</option><option value="늘품">늘품반</option>
+                                    <option value="">반</option><option value="1">1반</option><option value="2">2반</option><option value="늘품">늘품반</option><option value="수학누리">수학누리반</option>
                                 </select>
                             </div>
                             <div className="grid grid-cols-3 gap-3">
@@ -149,9 +155,10 @@
                             </div>
                             <input type="password" placeholder="PIN 번호 (4자리)" value={form.pin} onChange={e=>setForm({...form, pin:e.target.value})} className="w-full p-5 rounded-3xl glass outline-none font-bold text-center text-2xl tracking-[0.5em]" />
                             <button onClick={async () => {
-                                if(!form.grade || !form.classNum || !form.num || !form.name || !form.pin) return alert('모든 정보를 입력해주세요.');
+                                const isMathNuriForm = form.classNum === '수학누리';
+                                if((!isMathNuriForm && !form.grade) || !form.classNum || !form.num || !form.name || !form.pin) return alert('모든 정보를 입력해주세요.');
                                 setLoading(true);
-                                const userClass = `${form.grade}-${form.classNum}`;
+                                const userClass = isMathNuriForm ? '수학누리' : `${form.grade}-${form.classNum}`;
                                 const { data, error } = await supabaseClient
                                     .from('student_info')
                                     .select('*')
@@ -282,8 +289,12 @@
             };
 
             const ClassOn = () => {
-                const [step, setStep] = useState(1);
-                const [form, setForm] = useState({ period: '', subject: '', goal: '' });
+                const [step, setStep] = useState(isMathNuri ? 2 : 1);
+                const [form, setForm] = useState({ 
+                    period: isMathNuri ? '수업' : '', 
+                    subject: isMathNuri ? '수학' : '', 
+                    goal: '' 
+                });
                 const [submitting, setSubmitting] = useState(false);
 
                 const handleNext = () => {
@@ -381,8 +392,13 @@
             };
 
             const ReflectOn = () => {
-                const [step, setStep] = useState(1);
-                const [form, setForm] = useState({ period: '', subject: '', rating: 5, content: '' });
+                const [step, setStep] = useState(isMathNuri ? 2 : 1);
+                const [form, setForm] = useState({ 
+                    period: isMathNuri ? '수업' : '', 
+                    subject: isMathNuri ? '수학' : '', 
+                    rating: 5, 
+                    content: '' 
+                });
                 const [submitting, setSubmitting] = useState(false);
 
                 const handleNext = () => {
