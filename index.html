@@ -185,10 +185,11 @@
                         <p className="text-brand-500 font-black mb-1">{userInfo.userClass} {userInfo.userNumber}번</p>
                         <h2 className="text-4xl font-black dark:text-white leading-tight">{userInfo.userName} 학생, 반가워요!<br/>오늘의 아이-온을 시작해볼까요?</h2>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 ${isNeulpum ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-6 w-full`}>
                         {[
                             { id: 'morning', title: 'Morning ON', sub: '아침 체크인', icon: '🌅', color: 'bg-blue-500' },
                             { id: 'class', title: 'Class ON', sub: '수업 준비', icon: '🎒', color: 'bg-teal-500' },
+                            ...(isNeulpum ? [{ id: 'goal', title: 'Goal ON', sub: '나의 배움목표', icon: '🎯', color: 'bg-orange-500' }] : []),
                             { id: 'reflect', title: 'Reflect ON', sub: '배움 성찰', icon: '✨', color: 'bg-purple-500' },
                             { id: 'heart', title: 'HEART ON', sub: '마음의 편지', icon: '❤️', color: 'bg-red-500' }
                         ].map(m => (
@@ -235,7 +236,7 @@
                                 <div className="flex justify-between items-center h-32 px-4">
                                     {[1,2,3,4,5].map(t => (
                                         <button key={t} onClick={()=>setTemp(t)} className={`flex flex-col items-center transition-all ${temp === t ? 'scale-125 opacity-100' : 'opacity-30 blur-[1px]'}`}>
-                                            <span className="text-6xl">{['☁️','⛅','☀️','🌈','🔥'][t-1]}</span>
+                                            <span className="text-6xl">{['☁️','⛅','☀️','🌈','✨'][t-1]}</span>
                                             <span className={`text-xs font-black mt-2 ${temp===t?'text-blue-500':''}`}>{t}도</span>
                                         </button>
                                     ))}
@@ -500,7 +501,7 @@
                 const [submitting, setSubmitting] = useState(false);
                 return (
                     <div className="flex-grow w-full max-w-2xl mx-auto p-6 flex flex-col justify-center animate-in slide-in-from-bottom-10">
-                        <button onClick={()=>setView('main')} className="mb-10 text-gray-400 font-bold">← 돌아가기</button>
+                        <button onClick={()=>setView('main')} className="mb-10 text-gray-400 font-bold text-left">← 돌아가기</button>
                         <div className="glass rounded-[4rem] p-10 md:p-16 space-y-8 text-center border-t-8 border-red-500">
                             <h2 className="text-4xl font-black title-font text-red-500">HEART ON ❤️</h2>
                             <p className="text-gray-400 font-medium">선생님께만 전하고 싶은<br/>나의 소중한 이야기를 적어주세요.</p>
@@ -522,6 +523,43 @@
                                     }
                                 }} className={`w-full py-5 rounded-[2.5rem] text-white font-black text-xl shadow-lg transition-all ${submitting ? 'bg-gray-400 scale-95' : 'bg-red-500 hover:bg-red-600'}`}>
                                 {submitting ? '전송 중...' : '편지 보내기 💌'}
+                            </button>
+                        </div>
+                    </div>
+                );
+            };
+
+            const GoalOn = () => {
+                const [goal, setGoal] = useState('');
+                const [submitting, setSubmitting] = useState(false);
+
+                return (
+                    <div className="flex-grow w-full max-w-2xl mx-auto p-6 flex flex-col justify-center animate-in slide-in-from-bottom-10">
+                        <button onClick={()=>setView('main')} className="mb-10 text-gray-400 font-bold text-left">← 돌아가기</button>
+                        <div className="glass rounded-[4rem] p-10 md:p-16 space-y-8 border-t-8 border-orange-500">
+                            <div className="text-center space-y-2">
+                                <h2 className="text-3xl font-black dark:text-white italic uppercase tracking-tighter">Goal ON 🎯</h2>
+                                <p className="text-gray-400 font-bold">오늘 나의 배움 목표는 무엇인가요?</p>
+                            </div>
+                            <textarea value={goal} onChange={e=>setGoal(e.target.value)} placeholder="오늘 하루, 내가 이루고 싶은 목표를 자유롭게 적어보세요." className="w-full h-48 p-8 rounded-[3rem] glass outline-none font-medium text-lg focus:ring-4 ring-orange-100 shadow-inner" />
+                            <button 
+                                disabled={submitting}
+                                onClick={async () => {
+                                    if(!goal.trim()) return alert('오늘의 목표를 정해볼까요?');
+                                    setSubmitting(true);
+                                    const { error } = await supabaseClient.from('class_preparation').insert([{ 
+                                        user_class: userInfo.userClass, user_number: userInfo.userNumber, user_name: userInfo.userName, 
+                                        period: '오늘', subject: '나의 목표', goal: goal
+                                    }]);
+                                    setSubmitting(false);
+                                    if(!error) { 
+                                        alert('오늘의 목표 설정 완료! 함께 힘내요.'); 
+                                        setView('main'); 
+                                    } else {
+                                        alert('저장 실패: ' + (error.message || '데이터베이스 오류'));
+                                    }
+                                }} className={`w-full py-5 rounded-[2.5rem] text-white font-black text-xl shadow-lg transition-all ${submitting ? 'bg-gray-400 scale-95' : 'bg-orange-500 hover:bg-orange-600'}`}>
+                                {submitting ? '저장 중...' : '목표 설정하기 🚀'}
                             </button>
                         </div>
                     </div>
@@ -561,6 +599,7 @@
                     {view === 'main' && <Main />}
                     {view === 'morning' && <MorningOn />}
                     {view === 'class' && <ClassOn />}
+                    {view === 'goal' && <GoalOn />}
                     {view === 'reflect' && <ReflectOn />}
                     {view === 'heart' && <HeartOn />}
                     <footer className="p-10 text-center text-[10px] font-black text-gray-300 dark:text-gray-800 uppercase tracking-[0.5em]">© 2026 I-ON | Sanyang Middle School</footer>
